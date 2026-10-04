@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Course Setup</title>
+<meta name="description" content="First-day setup instructions for the CCPP-I Python programming course (TCCM, Universitat de València).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="course.css">
+<script src="course.js"></script>
+</head>
+<body>
+<div class="toolbar">
+  <a class="home" href="index.html" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg></a>
+  <span class="sep"></span>
+  <select id="nav" aria-label="Go to section"></select>
+  <span class="sep"></span>
+  <button id="fs-minus" type="button" title="Smaller text">A−</button><span class="fs" id="fs-size">19px</span><button id="fs-plus" type="button" title="Larger text">A+</button>
+  <span class="sep"></span>
+  <button id="theme" type="button">theme: auto</button>
+</div>
+
+<main class="narrow">
+<header class="doc">
+  <div class="caption">CCPP-I · Setup</div>
+  <h1>First-day setup</h1>
+  <p>Master TCCM · Universitat de València · October 2026</p>
+</header>
+
+<p>Do steps 1–3 before Monday if you can. If anything fails, stop there: we fix it together in the first hour of class.</p>
+
+<section class="step" id="before" data-nav="Before class">
+  <h2>Before class</h2>
+  <ul>
+    <li><strong>Bring your own laptop</strong>, charged. The lab has desktop computers, but you will do the homework and the course project at home, so it must work on your machine.</li>
+    <li>Open the course notes and skim <a href="https://kimikateorikoa.github.io/python-notes-tccm/contents/setup.html">Setting yourself up</a>:
+      <a href="https://kimikateorikoa.github.io/python-notes-tccm/intro.html">kimikateorikoa.github.io/python-notes-tccm</a></li>
+    <li>Accept the <strong>Slack</strong> invitation sent to your <code>@alumni.uv.es</code> address, and install Slack or check it works in your browser. Exercises, homework and questions all go through Slack.</li>
+  </ul>
+</section>
+
+<section class="step" id="install" data-nav="Installation">
+  <h2>Installation</h2>
+  <ol class="steps">
+    <li>
+      <strong>Install Anaconda</strong>
+      <p>Download the installer for your system from <a href="https://www.anaconda.com/download">anaconda.com/download</a> (the free "Distribution"; skip the registration if it is offered) and run it with the default options.</p>
+      <p class="muted">Windows: keep "Add to PATH" unticked, as the installer suggests; you will use <em>Anaconda Prompt</em> instead of the normal terminal.</p>
+    </li>
+    <li>
+      <strong>Open a terminal and check</strong>
+      <p>Windows: Start menu → <em>Anaconda Prompt</em>. macOS: <em>Terminal</em>. Linux: any terminal. Type:</p>
+<pre class="code"><code>conda --version
+python --version</code></pre>
+      <p>Both should print a version number. If <code>conda</code> is "not found", see Troubleshooting below.</p>
+    </li>
+    <li>
+      <strong>Create the course environment</strong>
+      <p>This installs Python and Jupyter Lab. It takes a few minutes; answer <kbd>y</kbd> when asked.</p>
+<pre class="code wrap"><code>conda create -n pytccm -c conda-forge python=3.12 jupyterlab</code></pre>
+      <p>The scientific libraries (NumPy, Matplotlib, SciPy, …) are installed during the course, when a class first needs them. The command is always of the form</p>
+<pre class="code"><code>conda install -c conda-forge &lt;package&gt;</code></pre>
+      <div class="note">
+        <p><strong>Every time</strong> you open a new terminal to work on the course, activate the environment first:</p>
+<pre class="code"><code>conda activate pytccm</code></pre>
+        <p>The prompt then starts with <code>(pytccm)</code>. "Module not found" errors almost always mean you forgot this step.</p>
+      </div>
+    </li>
+    <li>
+      <strong>Start Jupyter Lab</strong>
+      <p>Make a folder for the course (for example <code>pytccm</code> in your home directory), move into it and start Jupyter Lab:</p>
+<pre class="code"><code>conda activate pytccm
+mkdir pytccm
+cd pytccm
+jupyter lab</code></pre>
+      <p>A browser tab opens. Leave the terminal window open while you work; <kbd>Ctrl</kbd>+<kbd>C</kbd> there stops Jupyter Lab.</p>
+    </li>
+    <li>
+      <strong>Test it</strong>
+      <p>In the Jupyter Lab <em>Launcher</em> tab click <em>Python 3</em> under <em>Notebook</em>, type the line below in the first cell and run it with <kbd>Shift</kbd>+<kbd>Enter</kbd>.</p>
+<pre class="code" data-src>
+print("Hello world!")
+</pre>
+      <p>If it prints <code>Hello world!</code> with no error, you are ready.</p>
+    </li>
+    <li>
+      <strong>A text editor</strong> <span class="muted">(can wait until the first homework)</span>
+      <p>Homework is submitted as <code>.py</code> files, which you write in an editor, not in a notebook. Any editor works; <a href="https://code.visualstudio.com/">VS Code</a> with its Python extension is a good default. Jupyter Lab also has a built-in text editor (File → New → Python File).</p>
+    </li>
+  </ol>
+</section>
+
+<section class="step" id="trouble" data-nav="Troubleshooting">
+  <h2>Troubleshooting</h2>
+  <details>
+    <summary><code>conda: command not found</code> (macOS / Linux)</summary>
+    <p>The installer did not set up your shell. Run the line below once, then close and reopen the terminal.</p>
+<pre class="code"><code>~/anaconda3/bin/conda init</code></pre>
+  </details>
+  <details>
+    <summary><code>conda</code> not recognized (Windows)</summary>
+    <p>You are in PowerShell or cmd instead of <em>Anaconda Prompt</em>. Search the Start menu for "Anaconda Prompt" and use that window.</p>
+  </details>
+  <details>
+    <summary>The <code>conda create</code> step is very slow or ends with a conflict</summary>
+    <p>Update conda in the base environment and try again:</p>
+<pre class="code wrap"><code>conda update -n base conda
+conda create -n pytccm -c conda-forge python=3.12 jupyterlab</code></pre>
+  </details>
+  <details>
+    <summary><code>jupyter lab</code> opens nothing</summary>
+    <p>Copy the address printed in the terminal (it starts with <code>http://localhost:8888/lab?token=</code>) into your browser.</p>
+  </details>
+  <details>
+    <summary>I already have Anaconda or Miniconda installed</summary>
+    <p>Fine: skip step 1 and go straight to step 2.</p>
+  </details>
+</section>
+
+<section class="step" id="schedule" data-nav="Schedule">
+  <h2>Schedule</h2>
+  <p class="muted">Aula PC-5, 1st floor, building E, Facultat de Química</p>
+  <table class="plain">
+    <thead><tr><th>Date</th><th>Time</th><th>Topic</th></tr></thead>
+    <tbody>
+      <tr><td>Mon 5 Oct</td><td>09:00–13:00</td><td>Python fundamentals, control flow, functions</td></tr>
+      <tr><td>Thu 15 Oct</td><td>17:00–19:00</td><td>NumPy</td></tr>
+      <tr><td>Fri 16 Oct</td><td>09:00–13:00</td><td>Plotting, SciPy, ASE</td></tr>
+      <tr><td>Mon 26 Oct</td><td>09:00–13:00</td><td>Object-oriented programming; course project handed out</td></tr>
+      <tr><td>Fri 30 Oct</td><td>11:00–13:00</td><td>Open session: project questions, interactive widgets</td></tr>
+      <tr><td>Mon 2 Nov</td><td>09:00–13:00</td><td>Exam: oral discussion of your project</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="step" id="how" data-nav="How it works">
+  <h2>How the course works</h2>
+  <ul>
+    <li>In class we follow the online notes live. You get short exercises to solve on the spot and send on Slack.</li>
+    <li>After most classes there is a homework. It is due <strong>two days before the next class</strong>, so that there is time to look at it.</li>
+    <li>Homework is not marked for correctness. What counts is a genuine attempt on your own: the errors you make show which concepts need more time in class. Use the notes, the documentation and the web freely, but do not paste code from chatbots.</li>
+    <li>The course project (parsing a quantum chemistry output, two scripts) is handed out on 26 Oct and discussed one-to-one at the exam on 2 Nov.</li>
+  </ul>
+  <footer class="doc">Questions before Monday: ask on Slack or by email. See you in class.</footer>
+</section>
+</main>
+</body>
+</html>

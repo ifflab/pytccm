@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Fundamentals</title>
+<meta name="description" content="Class 1 of the CCPP-I Python course: variables, numbers, strings, lists, dictionaries, control flow, functions, sys.argv.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="course.css">
+<script src="course.js"></script>
+</head>
+<body>
+<div class="toolbar">
+  <a class="home" href="index.html" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg></a>
+  <span class="sep"></span>
+  <select id="nav" aria-label="Go to section"></select>
+  <span class="sep"></span>
+  <button id="fs-minus" type="button" title="Smaller text">A−</button><span class="fs" id="fs-size">19px</span><button id="fs-plus" type="button" title="Larger text">A+</button>
+  <span class="sep"></span>
+  <button id="theme" type="button">theme: auto</button>
+</div>
+<main>
+<header class="doc">
+  <div class="caption">CCPP-I · Class 01</div>
+  <h1>Python fundamentals</h1>
+  <p class="keys"><kbd>J</kbd>/<kbd>K</kbd> or <kbd>→</kbd>/<kbd>←</kbd> jump between sections</p>
+</header>
+
+<!-- ============================================================ -->
+<section class="step" id="variables" data-nav="Variables">
+  <h2>Variables are names for values</h2>
+  <p class="lead">Step through: a name appears when it is first assigned, and changes when assigned again.</p>
+  <div id="tr-vars"></div>
+  <h3>Built-in names can be overwritten by accident</h3>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+print = 1
+print("123")
+</pre>
+      <div class="out"><span class="err">TypeError: 'int' object is not callable</span></div>
+    </div>
+    <div>
+<pre class="code" data-src>
+del print   # back to the built-in
+print("123")
+</pre>
+      <div class="out">123</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="numbers" data-nav="Numbers">
+  <h2>Numbers: <code>/</code>, <code>//</code>, <code>%</code></h2>
+  <p class="lead"><code>/</code> always gives a float. <code>//</code> is how many whole rows fit, <code>%</code> is what is left over.</p>
+  <div class="viz cols">
+    <div>
+      <div class="controls">
+        <label>a <input type="range" id="dm-a" min="0" max="30" value="13"> <output id="dm-ao">13</output></label>
+        <label>b <input type="range" id="dm-b" min="1" max="8" value="2"> <output id="dm-bo">2</output></label>
+      </div>
+      <div class="dots" id="dm-dots"></div>
+    </div>
+    <div class="result" id="dm-res"></div>
+  </div>
+  <h3>Every value has a type</h3>
+  <div class="viz cols3">
+    <div class="card"><h4>int</h4><code>2</code>, <code>13 // 2</code>, <code>a ** 2</code><br><span class="muted">whole numbers, exact</span></div>
+    <div class="card"><h4>float</h4><code>13 / 2</code>, <code>0.1</code>, <code>1e-3</code><br><span class="muted">decimals, <em>not</em> exact: <code>0.1 + 0.05</code> → <span data-tip="Floats are stored in binary; 0.1 has no finite binary expansion, so a tiny error appears.">0.15000000000000002</span></span></div>
+    <div class="card"><h4>bool · str</h4><code>True</code>, <code>5 &gt; 4</code>, <code>1 == 1.0</code><br><code>"text"</code>, <code>'H' == 'H'</code><br><span class="muted">comparisons give booleans</span></div>
+  </div>
+  <p class="muted"><code>type(x)</code> tells which one.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="strings" data-nav="Strings">
+  <h2>Strings</h2>
+  <p class="lead">Text in quotes. Characters are numbered from 0 from the left, and from −1 from the right.</p>
+<pre class="code" data-src>
+formula = 'C2H5OH'
+</pre>
+  <div id="sl-str"></div>
+  <h3>Operators and methods</h3>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+'Hello ' + 'World'
+'Hello' + str(1), 'A' * 5
+'H' in formula, formula.count('H'), formula.find('OH')
+</pre>
+      <div class="out">'Hello World'
+('Hello1', 'AAAAA')
+(True, 2, <span data-tip="find returns the index where 'OH' starts; -1 if not found">4</span>)</div>
+    </div>
+    <div>
+<pre class="code" data-src>
+'Hello' + 1
+</pre>
+      <div class="out"><span class="err">TypeError: can only concatenate str (not "int") to str</span></div>
+      <p class="muted">Text and numbers do not mix: convert first with <code>str(1)</code> or <code>int('1')</code>.</p>
+    </div>
+  </div>
+  <h3><code>split</code> turns one string into a list of strings</h3>
+<pre class="code" data-src>
+line = 'H, C, N, O, Fe'
+line.split(', ')
+</pre>
+  <div id="split-viz"></div>
+<pre class="code" data-src>
+line.upper(), line.lower(), len(line)
+</pre>
+  <div class="out">('H, C, N, O, FE', 'h, c, n, o, fe', 14)</div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="fstrings" data-nav="f-strings">
+  <h2>f-strings: values inside text</h2>
+  <p class="lead">After the colon comes the format: alignment, width, decimals. Build one and watch the output cells.</p>
+<pre class="code" data-src>
+n = 4
+mass = 18.015
+print(f'Water has {n} atoms and mass {mass:.1f}')
+</pre>
+  <div class="out">Water has 4 atoms and mass 18.0</div>
+  <div class="controls">
+    <label>value <input type="text" class="mono" id="fs-val" value="18.015" size="9"></label>
+    <label>align <span class="seg" id="fs-align"><button data-v="">none</button><button data-v="<">&lt;</button><button data-v=">" class="on">&gt;</button><button data-v="^">^</button></span></label>
+    <label>width <input type="range" id="fs-w" min="0" max="14" value="10"> <output id="fs-wo">10</output></label>
+    <label>decimals <input type="range" id="fs-p" min="-1" max="6" value="3"> <output id="fs-po">3</output></label>
+  </div>
+  <div class="result" id="fs-code"></div>
+  <div class="cells" id="fs-cells" style="margin-top:.6rem"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="files" data-nav="Files">
+  <h2>Files</h2>
+  <p class="lead"><code>with</code> opens the file and closes it for you. <code>readlines()</code> gives one string per line, newline included.</p>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+with open('test.txt', 'w') as f:
+    f.write('123\n')
+    f.write('456')
+</pre>
+<pre class="code" data-src>
+with open('test.txt') as f:
+    lines = f.readlines()
+lines
+</pre>
+      <div class="out">['123\n', '456']</div>
+    </div>
+    <div>
+      <div class="file"><span class="fname">test.txt</span><span class="ln">1</span>123<span class="nl" data-tip="'\n' is the invisible newline character, written by f.write('123\n')">⏎</span>
+<span class="ln">2</span>456</div>
+      <p class="muted" style="margin-top:1rem"><code>'w'</code> = write (creates or <strong>overwrites</strong>). No second argument = read.</p>
+    </div>
+  </div>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+with open('pyridine.xyz') as f:
+    lines = f.readlines()
+print(lines[0])
+print(lines[2])
+lines[2].split()
+</pre>
+      <div class="out">11
+
+C       -0.180226841      0.360945118     -1.120304970
+
+['C', '-0.180226841', '0.360945118', '-1.120304970']</div>
+    </div>
+    <div>
+      <div class="file"><span class="fname">pyridine.xyz</span><span class="ln">0</span>11<span class="nl">⏎</span>
+<span class="ln">1</span><span class="nl">⏎</span>
+<span class="ln">2</span>C       -0.180226841      0.360945118     -1.120304970<span class="nl">⏎</span>
+<span class="ln">3</span>C       -0.180226841      1.559292118     -0.407860970<span class="nl">⏎</span>
+<span class="ln"> </span>…</div>
+      <p class="muted" style="margin-top:1rem"><code>print</code> adds its own newline, so a line that ends with <code>\n</code> prints with a blank line after it. <code>split()</code> without argument splits on any whitespace. Everything is still <em>text</em>: <code>float('-0.18…')</code> makes a number.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="lists" data-nav="Lists, tuples">
+  <h2>Lists and tuples</h2>
+  <p class="lead">A list is an ordered, changeable collection. Click the statements in order.</p>
+<pre class="code" data-src>
+elements = ['H', 'C', 'N', 'O', 'Fe']
+</pre>
+  <div id="ops-list"></div>
+  <h3>Indexing and slicing work exactly as for strings</h3>
+  <div id="sl-list"></div>
+  <h3>A list can mix types; a tuple is a list you cannot change</h3>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+mixed = ['Hola', 123, True, 4.5]
+for item in mixed:
+    print(item, type(item))
+</pre>
+      <div class="out">Hola &lt;class 'str'&gt;
+123 &lt;class 'int'&gt;
+True &lt;class 'bool'&gt;
+4.5 &lt;class 'float'&gt;</div>
+    </div>
+    <div>
+<pre class="code" data-src>
+t = ('H', 1, 1.008)
+t[1] = 2
+</pre>
+      <div class="out"><span class="err">TypeError: 'tuple' object does not support item assignment</span></div>
+      <p class="muted">Round brackets, fixed content. Reading <code>t[1]</code> is fine.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="samelist" data-nav="Two names, one list">
+  <h2>Two names, one list</h2>
+  <p class="lead"><code>b = a</code> does not copy. Both names point to the same object; changing it through one name is visible through the other.</p>
+  <div id="od-same"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="for" data-nav="for, range">
+  <h2><code>for</code>, <code>range</code>, <code>enumerate</code></h2>
+  <p class="lead">The loop variable takes each value of the collection in turn. The indented block runs once per value.</p>
+  <div id="tr-for"></div>
+  <h3><code>range</code> makes the numbers to loop over</h3>
+  <div class="controls">
+    <label>start <input type="range" id="rg-a" min="0" max="20" value="0"> <output id="rg-ao">0</output></label>
+    <label>stop <input type="range" id="rg-b" min="0" max="21" value="5"> <output id="rg-bo">5</output></label>
+    <label>step <input type="range" id="rg-s" min="1" max="5" value="1"> <output id="rg-so">1</output></label>
+  </div>
+  <div class="cells" id="rg-cells"></div>
+  <div class="result" id="rg-res"></div>
+  <p class="muted"><code>stop</code> is never included. <code>range(5)</code> means <code>range(0, 5, 1)</code>.</p>
+  <h3>Index and value together</h3>
+  <div id="tr-enum"></div>
+</section>
+
+<section class="pause" id="ex12" data-nav="Exercises 1–2">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercises 1 and 2</h2></div>
+  <div class="ex"><h3>1. Lists</h3>
+    <p>With <code>elements = ['H', 'C', 'N', 'O', 'Fe']</code>:</p>
+    <ol>
+      <li>Print the first and the last element.</li>
+      <li>Append <code>'S'</code>, remove <code>'N'</code>, print the length of the list.</li>
+      <li>Print the list sorted alphabetically; the original list must stay unchanged.</li>
+    </ol>
+  </div>
+  <div class="ex"><h3>2. Formatted table</h3>
+    <p>Print the elements as a table with two right-aligned columns of width 5 and 8, using <code>enumerate</code> and f-strings:</p>
+<pre class="out">Index  Element
+    0        H
+    1        C</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="dicts" data-nav="Dictionaries">
+  <h2>Dictionaries: key → value</h2>
+  <p class="lead">Look up by name instead of by position. Click the statements in order.</p>
+<pre class="code" data-src>
+carbon = {'symbol': 'C', 'mass': 12.011, 'number': 6}
+</pre>
+  <div id="ops-dict"></div>
+  <p class="muted">The dictionary used in the exercises and later today:</p>
+<pre class="code" data-src>
+masses = {'H': 1.008, 'C': 12.011, 'N': 14.007, 'O': 15.999, 'Fe': 55.845}
+</pre>
+  <h3>Building a dictionary in a loop</h3>
+  <div id="tr-dictloop"></div>
+</section>
+
+<section class="pause" id="ex3" data-nav="Exercise 3">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 3: Dictionaries</h2></div>
+  <div class="ex">
+    <p>Calculate the mass of water, <code>['H', 'H', 'O']</code>, with a <code>for</code> loop and <code>masses</code>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="conditions" data-nav="Conditions">
+  <h2>Conditions: <code>if</code> / <code>elif</code> / <code>else</code></h2>
+  <p class="lead">Conditions are tested top to bottom; the first true one wins, the rest are skipped.</p>
+  <div class="viz cols">
+    <div>
+      <div class="controls"><label>mass <input type="range" id="if-m" min="0" max="200" value="16"> <output id="if-mo">16</output></label></div>
+      <div class="flow" id="if-flow"></div>
+    </div>
+    <div class="out" id="if-out"></div>
+  </div>
+  <h3>Comparisons and <code>and</code>, <code>or</code>, <code>not</code></h3>
+  <div class="viz cols">
+    <div class="controls">
+      <label>a <input type="range" id="bl-a" min="0" max="5" value="1"> <output id="bl-ao">1</output></label>
+      <label>b <input type="range" id="bl-b" min="0" max="5" value="2"> <output id="bl-bo">2</output></label>
+    </div>
+    <div id="bl-table"></div>
+  </div>
+  <h3><code>==</code> compares values, <code>is</code> compares identity</h3>
+  <div id="od-eq"></div>
+  <h3>Empty things count as <code>False</code></h3>
+  <div class="viz cols">
+<pre class="code" data-src>
+text = ''
+if text:
+    print('not empty')
+else:
+    print('empty')
+</pre>
+    <div>
+      <div class="controls"><label>text = <span class="seg" id="em-seg"><button data-v="" class="on">''</button><button data-v="abc">'abc'</button><button data-v="0">'0'</button></span></label></div>
+      <div class="out" id="em-out"></div>
+      <p class="muted">Also false: <code>0</code>, <code>[]</code>, <code>{}</code>, <code>None</code>. Note <code>'0'</code> is a non-empty string.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pause" id="ex4" data-nav="Exercise 4">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 4: Conditions</h2></div>
+  <div class="ex">
+    <p>Loop over <code>masses</code> and print each element as <code>light</code> (mass below 10), <code>heavy</code> (above 50) or <code>medium</code>:</p>
+<pre class="out">H light
+C medium
+N medium
+O medium
+Fe heavy</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="while" data-nav="while">
+  <h2><code>while</code>: repeat as long as a condition holds</h2>
+  <p class="lead">The condition is re-checked before every pass. Something inside must move it towards <code>False</code>.</p>
+  <div id="tr-while"></div>
+</section>
+
+<section class="pause" id="ex5" data-nav="Exercise 5">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 5: Loops</h2></div>
+  <div class="ex">
+    <p>Calculate the sum of all even numbers from 2 to <code>n</code> (included), first with a <code>for</code> loop over <code>range</code>, then with a <code>while</code> loop.</p>
+<pre class="code" data-src>
+n = 10
+# for loop ...
+print(total)
+# while loop ...
+print(total)
+</pre>
+<pre class="out">30
+30</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="comprehensions" data-nav="Comprehensions">
+  <h2>Comprehensions: a loop that builds a list in one line</h2>
+  <p class="lead">Hover a part to see where it goes.</p>
+  <div class="viz cols loopvs">
+<pre class="code wrap"><span class="kw">for</span> <span class="g2" data-g="v">i</span> <span class="kw">in</span> <span class="g3" data-g="it">range(10)</span>:
+    doubles.append(<span class="g1" data-g="ex">i * 2</span>)</pre>
+<pre class="code wrap">[<span class="g1" data-g="ex">i * 2</span> <span class="kw">for</span> <span class="g2" data-g="v">i</span> <span class="kw">in</span> <span class="g3" data-g="it">range(10)</span>]</pre>
+  </div>
+  <div class="out">[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]</div>
+  <div class="viz cols loopvs">
+<pre class="code wrap"><span class="kw">for</span> <span class="g2" data-g="v2">x</span> <span class="kw">in</span> <span class="g3" data-g="it2">range(1, 11)</span>:
+    <span class="kw">if</span> <span class="g4" data-g="c2">x % 2 == 0</span>:
+        squares.append(<span class="g1" data-g="ex2">x**2</span>)</pre>
+<pre class="code wrap">[<span class="g1" data-g="ex2">x**2</span> <span class="kw">for</span> <span class="g2" data-g="v2">x</span> <span class="kw">in</span> <span class="g3" data-g="it2">range(1, 11)</span> <span class="kw">if</span> <span class="g4" data-g="c2">x % 2 == 0</span>]</pre>
+  </div>
+  <div class="out">[4, 16, 36, 64, 100]</div>
+  <h3>The same for dictionaries</h3>
+  <div class="viz cols loopvs">
+<pre class="code wrap">name_lengths = {}
+<span class="kw">for</span> <span class="g2" data-g="v3">element</span> <span class="kw">in</span> <span class="g3" data-g="it3">elements</span>:
+    name_lengths[<span class="g1" data-g="k3">element</span>] = <span class="g4" data-g="x3">len(element)</span></pre>
+<pre class="code wrap">{<span class="g1" data-g="k3">element</span>: <span class="g4" data-g="x3">len(element)</span> <span class="kw">for</span> <span class="g2" data-g="v3">element</span> <span class="kw">in</span> <span class="g3" data-g="it3">elements</span>}</pre>
+  </div>
+  <div class="out">{'H': 1, 'N': 1, 'O': 1, 'Fe': 2, 'S': 1}</div>
+  <div class="viz cols loopvs">
+<pre class="code wrap">positions = {}
+<span class="kw">for</span> <span class="g2" data-g="v4">i, element</span> <span class="kw">in</span> <span class="g3" data-g="it4">enumerate(elements)</span>:
+    positions[<span class="g1" data-g="k4">element</span>] = <span class="g4" data-g="x4">i</span></pre>
+<pre class="code wrap">{<span class="g1" data-g="k4">element</span>: <span class="g4" data-g="x4">i</span> <span class="kw">for</span> <span class="g2" data-g="v4">i, element</span> <span class="kw">in</span> <span class="g3" data-g="it4">enumerate(elements)</span>}</pre>
+  </div>
+  <div class="out">{'H': 0, 'N': 1, 'O': 2, 'Fe': 3, 'S': 4}</div>
+</section>
+
+<section class="pause" id="ex6" data-nav="Exercise 6">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 6: Comprehensions</h2></div>
+  <div class="ex">    <p>In one line each: the list of squares of the even numbers from 1 to 10, the list of symbols in <code>masses</code> heavier than carbon,
+    and the dictionary of the <em>heavy</em> elements only (mass &gt; 12) with a dictionary comprehension.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="errors" data-nav="Errors">
+  <h2>Reading an error message</h2>
+  <p class="lead">Read the <strong>last line</strong> first: the kind of error and what went wrong. Then find the arrow: where.</p>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+1 / 0
+</pre>
+      <div class="out"><span class="muted">--------------------------------------------</span>
+<span data-tip="The kind of error. Also appears in the last line.">ZeroDivisionError</span>     Traceback (most recent call last)
+<span data-tip="Where: file (or cell), line number, and the code.">Cell In[1], line 1
+----&gt; 1 1 / 0</span>
+
+<span class="err" data-tip="Start here. Kind of error: what happened.">ZeroDivisionError: division by zero</span></div>
+    </div>
+    <div>
+<pre class="code" data-src>
+print(undefined_variable)
+</pre>
+      <div class="out"><span class="muted">--------------------------------------------</span>
+NameError             Traceback (most recent call last)
+Cell In[2], line 1
+----&gt; 1 print(undefined_variable)
+
+<span class="err">NameError: name 'undefined_variable' is not defined</span></div>
+      <p class="muted">Usually a typo, or a cell that was not run yet.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="functions" data-nav="Functions">
+  <h2>Functions</h2>
+  <p class="lead">A function gets its own box of variables while it runs. <code>return</code> hands a value back; <code>print</code> only shows it.</p>
+  <div id="tr-func"></div>
+  <h3><code>print</code> is not <code>return</code></h3>
+  <div id="tr-none"></div>
+  <h3>Docstrings: a comment the function carries with it</h3>
+  <div class="viz cols">
+<pre class="code" data-src>
+def product(a, b):
+    """Return the product of a and b."""
+    return a * b
+
+product?
+</pre>
+    <div>
+      <div class="out"><span class="muted">Signature:</span> product(a, b)
+<span class="muted">Docstring:</span> Return the product of a and b.
+<span class="muted">Type:</span>      function</div>
+      <p class="muted">A string as the first line of the body. <code>?</code> in Jupyter (or <code>help(product)</code> anywhere) shows it; this is what you see for every library function too.</p>
+    </div>
+  </div>
+  <h3>A loop inside a function</h3>
+  <div id="tr-molmass"></div>
+  <h3>Several values come back as a tuple</h3>
+  <div class="viz cols">
+<pre class="code" data-src>
+def get_even_numbers(n):
+    numbers = list(range(0, n, 2))
+    return len(numbers), numbers
+
+count, values = get_even_numbers(10)
+count, values
+</pre>
+    <div>
+      <div class="out">(5, [0, 2, 4, 6, 8])</div>
+      <div class="cells" style="margin-top:.5rem">
+        <div class="cellcol"><div class="idx">count</div><div class="cell sel">5</div><div class="idx"></div></div>
+        <div class="cellcol"><div class="idx">values</div><div class="cell sel">[0, 2, 4, 6, 8]</div><div class="idx"></div></div>
+      </div>
+      <p class="muted">Two names on the left, two values on the right: unpacking.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="scope" data-nav="Scope">
+  <h2>Scope: what lives where</h2>
+  <p class="lead">Names created inside a function disappear when it returns. Constants go at the top, in CAPITALS.</p>
+  <div id="tr-scope"></div>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+energy_kcal
+</pre>
+      <div class="out"><span class="err">NameError: name 'energy_kcal' is not defined</span></div>
+    </div>
+    <div>
+<pre class="code" data-src>
+def set_value():
+    global value
+    value = 5
+
+set_value()
+value
+</pre>
+      <div class="out">5</div>
+      <p class="muted"><code>global</code> writes into the outer box. Legal, rarely a good idea: return the value instead.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="arguments" data-nav="Arguments">
+  <h2>Default and keyword arguments</h2>
+  <p class="lead">Positional arguments fill parameters left to right. Keywords go by name. Missing ones take their default.</p>
+  <div id="bd-describe"></div>
+  <h3><code>*args</code> collects extra positional, <code>**kwargs</code> extra keyword arguments</h3>
+  <div id="bd-total"></div>
+  <div id="bd-showall"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="recursion" data-nav="Recursion">
+  <h2>Recursion</h2>
+  <p class="lead">A function may call itself. Each call gets its own box; they pile up, then unwind.</p>
+  <div id="tr-fact"></div>
+</section>
+
+<section class="pause" id="ex7" data-nav="Exercise 7">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 7: Functions</h2></div>
+  <div class="ex">
+    <p>1. Write <code>molecular_mass(symbols)</code> that returns the mass of a molecule given as a list of symbols, using <code>masses</code>.</p>
+<pre class="code" data-src>
+print(molecular_mass(['H', 'H', 'O']))
+print(molecular_mass(['C', 'O', 'O']))
+</pre>
+<pre class="out">18.015
+44.009</pre>
+  </div>
+  <div class="ex">
+    <p>2. Write <code>describe(symbol, charge=0)</code> that prints the symbol and its charge.</p>
+<pre class="code" data-src>
+describe('O')
+describe('Fe', charge=3)
+</pre>
+<pre class="out">O, charge 0
+Fe, charge 3</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="argv" data-nav="sys.argv">
+  <h2>Scripts and <code>sys.argv</code></h2>
+  <p class="lead">A <code>.py</code> file is run from the terminal. The words after <code>python</code> arrive as a list of strings. Edit the command line.</p>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+# argv.py
+import sys
+
+print(sys.argv)
+</pre>
+      <div class="term"><span class="prompt">$ </span><input type="text" id="av-cmd" value="python argv.py heme.xyz" spellcheck="false"></div>
+    </div>
+    <div>
+      <div class="result muted">sys.argv =</div>
+      <div class="cells" id="av-cells"></div>
+      <div class="out" id="av-out" style="margin-top:.6rem"></div>
+    </div>
+  </div>
+  <h3>The homework template</h3>
+  <div class="viz cols">
+<pre class="code" data-src>
+# homework/hw1/count_atoms.py
+import sys
+
+if len(sys.argv) > 1:
+    filename = sys.argv[1]
+else:
+    print("Filename not provided!")
+    exit()
+
+# filename is a string: open it, count the atoms
+</pre>
+    <div>
+      <div class="flow" id="av-flow"></div>
+      <p class="muted" style="margin-top:.8rem">Everything in <code>sys.argv</code> is text. <code>sys.argv[0]</code> is the script itself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="pause" id="hw1" data-nav="Homework 1">
+  <div class="phead"><span class="mark">⏸</span><h2>Homework 1</h2><span class="muted">by Slack, end of Tue 13 Oct</span></div>
+  <div class="ex">
+    <p>1. Fibonacci: the <code>n</code>-th term, with a loop and with recursion.</p>
+    <p>2. Read the book sections "Additional notes on I/O" and "Using libraries" (<code>sys</code>, <code>os</code>, <code>argparse</code>).</p>
+    <p>3. <code>count_atoms.py</code>: count the atoms of each element in an XYZ file.</p>
+    <div class="term"><span class="prompt">$ </span>python count_atoms.py heme.xyz</div>
+<pre class="out">C  34
+O  4
+N  4
+Fe 1
+H  30</pre>
+  </div>
+</section>
+
+</main>
+
+<script>
+Course.init = function () {
+  const C = Course, $ = C.$, el = C.el, esc = C.esc, repr = C.repr, T = C.tuple;
+
+  /* ---- variables ---- */
+  C.tracer($('#tr-vars'), {
+    code: 'print("Hello world!")\nhello = "Hello world!"\nprint(hello)\nhello = "Something else"\nprint(hello)\na = 1\nA = 2\na, A',
+    steps: [
+      { l: 1, o: 'Hello world!\n', note: 'print shows text on the screen.' },
+      { l: 2, v: { hello: "'Hello world!'" }, o: 'Hello world!\n', note: 'A new name, hello, now refers to the string.' },
+      { l: 3, v: { hello: "'Hello world!'" }, o: 'Hello world!\nHello world!\n' },
+      { l: 4, v: { hello: "'Something else'" }, o: 'Hello world!\nHello world!\n', note: 'Assigning again replaces the value. The old one is gone.' },
+      { l: 5, v: { hello: "'Something else'" }, o: 'Hello world!\nHello world!\nSomething else\n' },
+      { l: 6, v: { hello: "'Something else'", a: '1' }, o: 'Hello world!\nHello world!\nSomething else\n' },
+      { l: 7, v: { hello: "'Something else'", a: '1', A: '2' }, o: 'Hello world!\nHello world!\nSomething else\n', note: 'a and A are different names: case matters.' },
+      { l: 8, v: { hello: "'Something else'", a: '1', A: '2' }, o: 'Hello world!\nHello world!\nSomething else\n(1, 2)', note: 'The last expression of a cell is shown even without print.' },
+    ]
+  });
+
+  /* ---- numbers: // and % ---- */
+  function divmod() {
+    const a = +$('#dm-a').value, b = +$('#dm-b').value;
+    $('#dm-ao').textContent = a; $('#dm-bo').textContent = b;
+    const dots = $('#dm-dots'); dots.innerHTML = '';
+    const q = Math.floor(a / b), r = a % b;
+    for (let i = 0; i < q; i++) { const row = el('div', 'row'); for (let j = 0; j < b; j++) row.append(el('span', 'dot')); dots.append(row); }
+    if (r) { const row = el('div', 'row rem'); for (let j = 0; j < r; j++) row.append(el('span', 'dot rem')); dots.append(row); }
+    const div = a / b;
+    $('#dm-res').innerHTML = `${a} / ${b}<span class="arrow">→</span>${Number.isInteger(div) ? div + '.0' : +div.toFixed(6)}<br>${a} // ${b}<span class="arrow">→</span>${q} <span class="muted">(full rows)</span><br>${a} % ${b}<span class="arrow">→</span>${r} <span class="muted">(left over)</span>`;
+  }
+  ['#dm-a', '#dm-b'].forEach(s => $(s).addEventListener('input', divmod)); divmod();
+
+  /* ---- strings ---- */
+  C.slicer($('#sl-str'), { items: [...'C2H5OH'], name: 'formula', kind: 'str' });
+  (function () {
+    const w = el('div', 'viz cols');
+    const left = el('div', 'cells'); left.append(el('div', 'cell', esc("'H, C, N, O, Fe'")));
+    const right = C.listCells(['H', 'C', 'N', 'O', 'Fe'], {});
+    w.append(left, right); $('#split-viz').append(w);
+  })();
+
+  /* ---- f-strings ---- */
+  let fsAlign = '>';
+  function fstr() {
+    const raw = $('#fs-val').value.trim(), w = +$('#fs-w').value, p = +$('#fs-p').value;
+    $('#fs-wo').textContent = w; $('#fs-po').textContent = p < 0 ? 'none' : p;
+    const num = Number(raw), isNum = raw !== '' && !isNaN(num);
+    const spec = fsAlign + (w ? w : '') + (p >= 0 ? '.' + p + 'f' : '');
+    let s, err = null;
+    if (!isNum) { if (p >= 0) err = "ValueError: Unknown format code 'f' for object of type 'str'"; s = raw; }
+    else s = p >= 0 ? num.toFixed(p) : String(num);
+    if (!err && w > s.length) {
+      const pad = w - s.length;
+      if (fsAlign === '<') s = s + ' '.repeat(pad);
+      else if (fsAlign === '^') s = ' '.repeat(Math.floor(pad / 2)) + s + ' '.repeat(pad - Math.floor(pad / 2));
+      else if (fsAlign === '>' || isNum) s = ' '.repeat(pad) + s;
+      else s = s + ' '.repeat(pad);
+    }
+    $('#fs-code').innerHTML = C.hl("f'{" + 'mass' + (spec ? ':' + spec : '') + "}|'") + (err ? '' : '<span class="arrow">→</span>' + esc(repr(s + '|')));
+    const cells = $('#fs-cells'); cells.innerHTML = '';
+    if (err) { cells.append(el('span', 'err mono', esc(err))); return; }
+    [...s].forEach(ch => cells.append(el('div', 'cell' + (ch === ' ' ? ' ghost' : ' sel'), ch === ' ' ? '␣' : esc(ch))));
+    cells.append(el('div', 'cell', '|'));
+    if (w && s.length > w) cells.append(el('span', 'muted', '← longer than width ' + w + ': never truncated'));
+  }
+  $('#fs-align').querySelectorAll('button').forEach(b => b.onclick = () => { $('#fs-align').querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); fsAlign = b.dataset.v; fstr(); });
+  ['#fs-val', '#fs-w', '#fs-p'].forEach(s => $(s).addEventListener('input', fstr)); fstr();
+
+  /* ---- lists ---- */
+  C.ops($('#ops-list'), {
+    init: () => ({ items: ['H', 'C', 'N', 'O', 'Fe'] }),
+    render: (st, view, info) => view.append(C.listCells(st.items, info, 'elements')),
+    ops: [
+      { code: 'elements[0], elements[-1]', apply: (st, info) => { info.sel = [0, st.items.length - 1]; return repr(T(st.items[0], st.items[st.items.length - 1])); } },
+      { code: "elements[1] = 'Si'", apply: (st, info) => { st.items[1] = 'Si'; info.new = [1]; } },
+      { code: "elements.append('S')", apply: (st, info) => { st.items.push('S'); info.new = [st.items.length - 1]; } },
+      { code: "elements.remove('Si')", apply: (st, info) => { st.items.splice(st.items.indexOf('Si'), 1); info.sel = []; } },
+      { code: 'len(elements)', apply: st => String(st.items.length) },
+      { code: 'sorted(elements)   # a new list; elements is unchanged', apply: st => repr([...st.items].sort()) },
+    ]
+  });
+  C.slicer($('#sl-list'), { items: ['H', 'N', 'O', 'Fe', 'S'], name: 'elements', kind: 'list' });
+
+  /* ---- same list ---- */
+  C.objdiag($('#od-same'), { steps: [
+    { code: 'a = [1, 2]', names: { a: 'L' }, objs: { L: { type: 'list', text: '[1, 2]' } }, hot: ['a'] },
+    { code: 'b = a', names: { a: 'L', b: 'L' }, objs: { L: { type: 'list', text: '[1, 2]' } }, hot: ['b'] },
+    { code: 'a.append(3)', names: { a: 'L', b: 'L' }, objs: { L: { type: 'list', text: '[1, 2, 3]' } }, changed: ['L'], hot: ['a'] },
+    { code: 'b', names: { a: 'L', b: 'L' }, objs: { L: { type: 'list', text: '[1, 2, 3]' } }, hot: ['b'], out: '[1, 2, 3]' },
+    { code: 'a is b', names: { a: 'L', b: 'L' }, objs: { L: { type: 'list', text: '[1, 2, 3]' } }, hot: ['a', 'b'], out: 'True' },
+  ] });
+
+  /* ---- for ---- */
+  (function () {
+    const elems = ['H', 'N', 'O', 'Fe', 'S'];
+    const items = elems.map(repr);
+    const steps = [{ l: 1, v: { elements: repr(elems) } }];
+    let o = '';
+    elems.forEach((e, i) => {
+      steps.push({ l: 2, cur: i, v: { elements: repr(elems), element: repr(e) }, o, note: i === 0 ? 'element takes the first value.' : 'Next value.' });
+      o += e + '\n';
+      steps.push({ l: 3, cur: i, v: { elements: repr(elems), element: repr(e) }, o });
+    });
+    steps.push({ l: 2, cur: 'end', v: { elements: repr(elems), element: repr('S') }, o, note: 'No values left: the loop ends. element keeps its last value.' });
+    C.tracer($('#tr-for'), { code: "elements = ['H', 'N', 'O', 'Fe', 'S']\nfor element in elements:\n    print(element)", steps, speed: 700, items, itemsName: 'elements' });
+    const steps2 = [];
+    o = '';
+    elems.forEach((e, i) => {
+      steps2.push({ l: 1, cur: i, v: { i: String(i), element: repr(e) }, o });
+      o += i + ' ' + e + '\n';
+      steps2.push({ l: 2, cur: i, v: { i: String(i), element: repr(e) }, o });
+    });
+    steps2.push({ l: 1, cur: 'end', v: { i: '4', element: repr('S') }, o, note: 'No values left: the loop ends.' });
+    C.tracer($('#tr-enum'), { code: 'for i, element in enumerate(elements):\n    print(i, element)', steps: steps2, speed: 700, items, itemsName: 'elements' });
+  })();
+  function rangeW() {
+    const a = +$('#rg-a').value, b = +$('#rg-b').value, s = +$('#rg-s').value;
+    $('#rg-ao').textContent = a; $('#rg-bo').textContent = b; $('#rg-so').textContent = s;
+    const vals = []; for (let i = a; i < b; i += s) vals.push(i);
+    const cells = $('#rg-cells'); cells.innerHTML = '';
+    for (let i = 0; i <= 21; i++) {
+      const c = el('div', 'cell' + (vals.includes(i) ? ' sel' : ' dim') + (i === b ? ' bad' : ''), String(i));
+      if (i === b) c.title = 'stop: not included';
+      cells.append(c);
+    }
+    const args = a === 0 && s === 1 ? b : a + ', ' + b + (s === 1 ? '' : ', ' + s);
+    $('#rg-res').innerHTML = C.hl(`for i in range(${args}):`) + `<span class="arrow">→</span>i takes ${vals.length ? vals.join(', ') : 'no values: the block never runs'}`;
+  }
+  ['#rg-a', '#rg-b', '#rg-s'].forEach(s => $(s).addEventListener('input', rangeW)); rangeW();
+
+  /* ---- dicts ---- */
+  function dictView(d, info) {
+    const w = el('div', 'dict');
+    Object.keys(d).forEach(k => {
+      const cls = (info.selK || []).includes(k) || (info.selAll || []).includes('k') ? ' sel' : '';
+      const clsV = (info.selK || []).includes(k) || (info.selAll || []).includes('v') ? ' sel' : '';
+      const nw = (info.new || []).includes(k) ? ' new' : '';
+      w.append(el('span', 'k' + cls + nw, esc(repr(k))), el('span', 'ar', '→'), el('span', 'v' + clsV + nw, esc(repr(d[k]))));
+    });
+    (info.gone || []).forEach(k => w.append(el('span', 'k gone', esc(repr(k))), el('span', 'ar', '→'), el('span', 'v gone', esc(info.goneVal))));
+    return w;
+  }
+  C.ops($('#ops-dict'), {
+    init: () => ({ d: { symbol: 'C', mass: 12.011, number: 6 } }),
+    render: (st, view, info) => view.append(dictView(st.d, info)),
+    ops: [
+      { code: "carbon['mass']", apply: (st, info) => { info.selK = ['mass']; return '12.011'; } },
+      { code: "carbon['isotopes'] = (12, 13, 14)", apply: (st, info) => { st.d.isotopes = T(12, 13, 14); info.new = ['isotopes']; } },
+      { code: 'for key in carbon.keys():\n    print(key)', apply: (st, info) => { info.selAll = ['k']; return Object.keys(st.d).join('\n'); } },
+      { code: 'for value in carbon.values():\n    print(value)', apply: (st, info) => { info.selAll = ['v']; return Object.values(st.d).map(v => v.__tuple ? repr(v) : String(v)).join('\n'); } },
+      { code: 'for key, value in carbon.items():\n    print(key, value)', apply: (st, info) => { info.selAll = ['k', 'v']; return Object.keys(st.d).map(k => k + ' ' + (st.d[k].__tuple ? repr(st.d[k]) : st.d[k])).join('\n'); } },
+      { code: "del carbon['isotopes']", apply: (st, info) => { info.gone = ['isotopes']; info.goneVal = repr(st.d.isotopes); delete st.d.isotopes; } },
+      { code: "carbon['charge']", apply: () => "!KeyError: 'charge'" },
+    ]
+  });
+  (function () {
+    const elems = ['H', 'N', 'O', 'Fe', 'S'];
+    const steps = [{ l: 1, v: { name_lengths: '{}' } }];
+    const d = {};
+    elems.forEach((e, i) => {
+      steps.push({ l: 2, cur: i, v: { name_lengths: repr(d), element: repr(e) } });
+      d[e] = e.length;
+      steps.push({ l: 3, cur: i, v: { name_lengths: repr(d), element: repr(e) } });
+    });
+    steps.push({ l: 4, cur: 'end', v: { name_lengths: repr(d), element: repr('S') }, o: repr(d) });
+    C.tracer($('#tr-dictloop'), { code: 'name_lengths = {}\nfor element in elements:\n    name_lengths[element] = len(element)\nname_lengths', steps, speed: 700, items: elems.map(repr), itemsName: 'elements' });
+  })();
+
+  /* ---- conditions ---- */
+  function ifFlow() {
+    const m = +$('#if-m').value; $('#if-mo').textContent = m;
+    const c1 = m > 50, c2 = m > 10;
+    const branch = c1 ? 'heavy' : c2 ? 'medium' : 'light';
+    const lines = [
+      ['mass = ' + m, null],
+      ['if mass > 50:', c1 ? 't' : 'f'],
+      ["    print('heavy')", c1 ? 'run' : 'skip'],
+      ['elif mass > 10:', c1 ? 'skip' : c2 ? 't' : 'f'],
+      ["    print('medium')", !c1 && c2 ? 'run' : 'skip'],
+      ['else:', c1 || c2 ? 'skip' : 'run'],
+      ["    print('light')", !c1 && !c2 ? 'run' : 'skip'],
+    ];
+    const f = $('#if-flow'); f.innerHTML = '';
+    const pre = el('pre', 'code');
+    pre.innerHTML = lines.map(([code, st]) => '<span class="line' + (st === 'run' || st === 't' ? ' cur' : '') + '">' + C.hl(code).padEnd(0) + (st === 't' ? ' <span class="badge t">True</span>' : st === 'f' ? ' <span class="badge f">False</span>' : st === 'skip' ? ' <span class="badge skip">skipped</span>' : '') + '</span>').join('');
+    f.append(pre);
+    $('#if-out').innerHTML = '<span class="label">output</span>' + branch;
+  }
+  $('#if-m').addEventListener('input', ifFlow); ifFlow();
+  function boolTable() {
+    const a = +$('#bl-a').value, b = +$('#bl-b').value; $('#bl-ao').textContent = a; $('#bl-bo').textContent = b;
+    const rows = [
+      ['a != b', a !== b], ['a == b', a === b],
+      ['a < b and b < 3', (a < b) && (b < 3), `${a < b ? 'True' : 'False'} and ${b < 3 ? 'True' : 'False'}`],
+      ['a > b or b > 1', (a > b) || (b > 1), `${a > b ? 'True' : 'False'} or ${b > 1 ? 'True' : 'False'}`],
+      ['not a > b', !(a > b), `not ${a > b ? 'True' : 'False'}`],
+    ];
+    $('#bl-table').innerHTML = '<div class="flow">' + rows.map(r => `<div class="line"><code style="min-width:9.5em">${esc(r[0])}</code>${r[2] ? '<span class="muted mono" style="font-size:.8rem;min-width:7em">' + esc(r[2]) + '</span>' : '<span style="min-width:7em"></span>'}<span class="badge ${r[1] ? 't' : 'f'}">${r[1] ? 'True' : 'False'}</span></div>`).join('') + '</div>';
+  }
+  ['#bl-a', '#bl-b'].forEach(s => $(s).addEventListener('input', boolTable)); boolTable();
+  C.objdiag($('#od-eq'), { steps: [
+    { code: 'a = [1, 2]\nb = [1, 2]', names: { a: 'L1', b: 'L2' }, objs: { L1: { type: 'list', text: '[1, 2]' }, L2: { type: 'list', text: '[1, 2]' } } },
+    { code: 'a == b', names: { a: 'L1', b: 'L2' }, objs: { L1: { type: 'list', text: '[1, 2]' }, L2: { type: 'list', text: '[1, 2]' } }, out: 'True   # same content' },
+    { code: 'a is b', names: { a: 'L1', b: 'L2' }, objs: { L1: { type: 'list', text: '[1, 2]' }, L2: { type: 'list', text: '[1, 2]' } }, hot: ['a', 'b'], out: 'False  # two different objects' },
+  ] });
+  $('#em-seg').querySelectorAll('button').forEach(b => b.onclick = () => {
+    $('#em-seg').querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on');
+    $('#em-out').innerHTML = '<span class="label">output</span>' + (b.dataset.v ? 'not empty' : 'empty');
+  });
+  $('#em-out').innerHTML = '<span class="label">output</span>empty';
+
+  /* ---- while ---- */
+  (function () {
+    const steps = [{ l: [1, 2], v: { total: '0', n: '1' } }];
+    let total = 0, n = 1;
+    while (true) {
+      const ok = total < 50;
+      steps.push({ l: 3, v: { total: String(total), n: String(n) }, note: `total < 50  →  ${total} < 50 is ${ok ? 'True: run the block' : 'False: leave the loop'}` });
+      if (!ok) break;
+      total += n;
+      steps.push({ l: 4, v: { total: String(total), n: String(n) } });
+      n += 1;
+      steps.push({ l: 5, v: { total: String(total), n: String(n) } });
+    }
+    steps.push({ l: 6, v: { total: String(total), n: String(n) }, o: total + ' ' + n });
+    C.tracer($('#tr-while'), { code: 'total = 0\nn = 1\nwhile total < 50:\n    total += n\n    n += 1\nprint(total, n)', steps, speed: 500 });
+  })();
+
+  /* ---- functions ---- */
+  C.tracer($('#tr-func'), {
+    code: 'def product(a, b):\n    return a * b\n\nresult = product(2, 3)\nresult',
+    steps: [
+      { l: 1, f: [{ n: 'global', v: { product: '<function>' } }], note: 'def only defines: nothing inside runs yet.' },
+      { l: 4, f: [{ n: 'global', v: { product: '<function>' } }], note: 'The call: Python jumps into the function with a = 2, b = 3.' },
+      { l: 2, f: [{ n: 'global', v: { product: '<function>' } }, { n: 'product(2, 3)', v: { a: '2', b: '3' } }], note: 'A new box of variables, just for this call.' },
+      { l: 2, f: [{ n: 'global', v: { product: '<function>' } }, { n: 'product(2, 3)', v: { a: '2', b: '3' }, ret: '6' }], note: 'return sends 6 back to the caller.' },
+      { l: 4, f: [{ n: 'global', v: { product: '<function>', result: '6' } }], note: 'The box of the call is gone; result holds the returned value.' },
+      { l: 5, f: [{ n: 'global', v: { product: '<function>', result: '6' } }], o: '6' },
+    ]
+  });
+  C.tracer($('#tr-none'), {
+    code: "def greeting(name):\n    print(f'Hello {name}!')\n\nresult = greeting('Alex')\nprint(result)",
+    steps: [
+      { l: 4, f: [{ n: 'global', v: { greeting: '<function>' } }] },
+      { l: 2, f: [{ n: 'global', v: { greeting: '<function>' } }, { n: "greeting('Alex')", v: { name: "'Alex'" } }], o: 'Hello Alex!\n', note: 'print shows text. Nothing is returned…' },
+      { l: 4, f: [{ n: 'global', v: { greeting: '<function>', result: 'None' } }], o: 'Hello Alex!\n', note: '…so the call is worth None.' },
+      { l: 5, f: [{ n: 'global', v: { greeting: '<function>', result: 'None' } }], o: 'Hello Alex!\nNone' },
+    ]
+  });
+  (function () {
+    const masses = { H: 1.008, C: 12.011, N: 14.007, O: 15.999, Fe: 55.845 };
+    const g = { masses: '{…}', molecular_mass: '<function>' };
+    const steps = [{ l: 7, f: [{ n: 'global', v: g }] }];
+    const syms = ['H', 'H', 'O'];
+    let total = 0;
+    const fr = v => [{ n: 'global', v: g }, { n: "molecular_mass(['H', 'H', 'O'])", v }];
+    steps.push({ l: 2, f: fr({ symbols: repr(syms), total: '0' }) });
+    syms.forEach((s, i) => {
+      steps.push({ l: 3, cur: i, f: fr({ symbols: repr(syms), total: +total.toFixed(3) + '', symbol: repr(s) }) });
+      total += masses[s];
+      steps.push({ l: 4, cur: i, f: fr({ symbols: repr(syms), total: +total.toFixed(3) + '', symbol: repr(s) }), note: `masses[${repr(s)}] is ${masses[s]}` });
+    });
+    steps.push({ l: 5, f: [{ n: 'global', v: g }, { n: "molecular_mass(['H', 'H', 'O'])", v: { symbols: repr(syms), total: '18.015', symbol: "'O'" }, ret: '18.015' }] });
+    steps.push({ l: 7, f: [{ n: 'global', v: g }], o: '18.015', note: 'total and symbol existed only inside the call.' });
+    C.tracer($('#tr-molmass'), { code: "def molecular_mass(symbols):\n    total = 0\n    for symbol in symbols:\n        total += masses[symbol]\n    return total\n\nmolecular_mass(['H', 'H', 'O'])", steps, speed: 700, items: syms.map(repr), itemsName: 'symbols' });
+  })();
+
+  /* ---- scope ---- */
+  C.tracer($('#tr-scope'), {
+    code: 'KCAL_PER_KJ = 1 / 4.184\n\ndef to_kcal(energy_kj):\n    energy_kcal = energy_kj * KCAL_PER_KJ\n    return energy_kcal\n\nto_kcal(100)',
+    steps: [
+      { l: 1, f: [{ n: 'global', v: { KCAL_PER_KJ: '0.2390…' } }], note: 'A constant: defined once, at the top, in CAPITALS.' },
+      { l: 3, f: [{ n: 'global', v: { KCAL_PER_KJ: '0.2390…', to_kcal: '<function>' } }] },
+      { l: 7, f: [{ n: 'global', v: { KCAL_PER_KJ: '0.2390…', to_kcal: '<function>' } }] },
+      { l: 4, f: [{ n: 'global', v: { KCAL_PER_KJ: '0.2390…', to_kcal: '<function>' } }, { n: 'to_kcal(100)', v: { energy_kj: '100', energy_kcal: '23.90…' } }], note: 'Inside, KCAL_PER_KJ is found in the outer box: reading globals is fine.' },
+      { l: 5, f: [{ n: 'global', v: { KCAL_PER_KJ: '0.2390…', to_kcal: '<function>' } }, { n: 'to_kcal(100)', v: { energy_kj: '100', energy_kcal: '23.90…' }, ret: '23.90…' }] },
+      { l: 7, f: [{ n: 'global', v: { KCAL_PER_KJ: '0.2390…', to_kcal: '<function>' } }], o: '23.90057361376673', note: 'The call is over: energy_kcal is gone.' },
+    ]
+  });
+
+  /* ---- arguments ---- */
+  C.binder($('#bd-describe'), {
+    name: 'describe', params: [{ n: 'symbol' }, { n: 'charge', def: '0' }],
+    calls: [
+      { text: "describe('Fe')", pos: ["'Fe'"] },
+      { text: "describe('Fe', 3)", pos: ["'Fe'", '3'] },
+      { text: "describe(charge=-1, symbol='Cl')", pos: [], kw: { charge: '-1', symbol: "'Cl'" } },
+      { text: 'describe()', pos: [] },
+      { text: "describe('Fe', 3, 2)", pos: ["'Fe'", '3', '2'] },
+      { text: "describe(charge=3, 'Fe')", pos: ["'Fe'"], kw: { charge: '3' } },
+    ],
+    body: b => b.symbol.replace(/'/g, '') + ', charge ' + b.charge
+  });
+  C.binder($('#bd-total'), {
+    name: 'total_mass', params: [], star: 'args',
+    calls: [
+      { text: 'total_mass(1.008, 1.008, 15.999)', pos: ['1.008', '1.008', '15.999'] },
+      { text: 'total_mass(12.011)', pos: ['12.011'] },
+      { text: 'total_mass()', pos: [] },
+    ],
+    body: (b, extra) => String(+extra.reduce((s, x) => s + Number(x), 0).toFixed(3))
+  });
+  C.binder($('#bd-showall'), {
+    name: 'show_all', params: [], star: 'args', kw: 'kwargs',
+    calls: [
+      { text: "show_all(1, 'test', name='Alex', age=20)", pos: ['1', "'test'"], kw: { name: "'Alex'", age: '20' } },
+      { text: "show_all(name='Alex')", pos: [], kw: { name: "'Alex'" } },
+    ],
+    body: (b, extra, kw) => '(' + extra.join(', ') + (extra.length === 1 ? ',' : '') + ')\n{' + Object.keys(kw).map(k => "'" + k + "': " + kw[k]).join(', ') + '}'
+  });
+  // the syntax-error call: positional after keyword
+  (function () {
+    const b = document.querySelectorAll('#bd-describe .ops button')[5];
+    b.addEventListener('click', () => { const o = $('#bd-describe .out'); o.innerHTML = '<span class="label">output</span><span class="err">SyntaxError: positional argument follows keyword argument</span>'; $('#bd-describe .params').innerHTML = '<span class="muted">Keyword arguments must come last.</span>'; });
+  })();
+
+  /* ---- recursion ---- */
+  (function () {
+    const g = { factorial: '<function>' };
+    const steps = [{ l: 7, f: [{ n: 'global', v: g }] }];
+    const stack = [];
+    for (let n = 5; n >= 0; n--) {
+      stack.push({ n: 'factorial(' + n + ')', v: { n: String(n) } });
+      steps.push({ l: 3, f: [{ n: 'global', v: g }].concat(stack.map(s => ({ n: s.n, v: { ...s.v } }))), note: n === 0 ? 'n == 0: the base case. Stop calling, start returning.' : 'n == 0? No: call factorial(' + (n - 1) + ') first.' });
+      if (n > 0) steps.push({ l: 5, f: [{ n: 'global', v: g }].concat(stack.map(s => ({ n: s.n, v: { ...s.v } }))), note: 'Waiting for factorial(' + (n - 1) + ') to come back.' });
+    }
+    let r = 1;
+    steps.push({ l: 4, f: [{ n: 'global', v: g }].concat(stack.map((s, i) => ({ n: s.n, v: { ...s.v }, ret: i === stack.length - 1 ? '1' : undefined }))) });
+    stack.pop();
+    for (let n = 1; n <= 5; n++) {
+      r *= n;
+      steps.push({ l: 5, f: [{ n: 'global', v: g }].concat(stack.map((s, i) => ({ n: s.n, v: { ...s.v }, ret: i === stack.length - 1 ? String(r) : undefined }))), note: `${n} * ${r / n} = ${r}` });
+      stack.pop();
+    }
+    steps.push({ l: 7, f: [{ n: 'global', v: g }], o: '120' });
+    C.tracer($('#tr-fact'), { code: 'def factorial(n):\n    """Return n! computed recursively."""\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)\n\nfactorial(5)', steps, speed: 800 });
+  })();
+
+  /* ---- argv ---- */
+  function argv() {
+    const words = $('#av-cmd').value.trim().split(/\s+/).filter(Boolean);
+    const args = words[0] === 'python' ? words.slice(1) : words;
+    const cells = $('#av-cells'); cells.innerHTML = '';
+    cells.append(el('span', 'bracket', '['));
+    args.forEach((w, i) => { const col = el('div', 'cellcol'); col.append(el('div', 'idx', String(i)), el('div', 'cell' + (i === 0 ? '' : ' sel'), esc(repr(w))), el('div', 'idx', i === 0 ? 'script' : 'argument')); cells.append(col); });
+    cells.append(el('span', 'bracket', ']'));
+    $('#av-out').innerHTML = '<span class="label">printed by argv.py</span>' + esc(repr(args));
+    const ok = args.length > 1;
+    $('#av-flow').innerHTML = '<pre class="code"><span class="line cur">' + C.hl('if len(sys.argv) > 1:') + ` <span class="badge ${ok ? 't' : 'f'}">len = ${args.length}: ${ok ? 'True' : 'False'}</span></span><span class="line${ok ? ' cur' : ''}">` + C.hl('    filename = sys.argv[1]') + (ok ? ' <span class="badge t">filename = ' + esc(repr(args[1])) + '</span>' : ' <span class="badge skip">skipped</span>') + '</span><span class="line">' + C.hl('else:') + '</span><span class="line' + (ok ? '' : ' cur') + '">' + C.hl('    print("Filename not provided!")') + (ok ? ' <span class="badge skip">skipped</span>' : '') + '</span></pre>';
+  }
+  $('#av-cmd').addEventListener('input', argv); argv();
+};
+</script>
+</body>
+</html>
