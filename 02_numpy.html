@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NumPy Arrays</title>
+<meta name="description" content="Class 2 of the CCPP-I Python course: NumPy arrays, shapes, indexing, reductions, linear algebra, files, broadcasting and the distance matrix.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="course.css">
+<script src="course.js"></script>
+</head>
+<body>
+<div class="toolbar">
+  <a class="home" href="index.html" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg></a>
+  <span class="sep"></span>
+  <select id="nav" aria-label="Go to section"></select>
+  <span class="sep"></span>
+  <button id="fs-minus" type="button" title="Smaller text">A−</button><span class="fs" id="fs-size">19px</span><button id="fs-plus" type="button" title="Larger text">A+</button>
+  <span class="sep"></span>
+  <button id="theme" type="button">theme: auto</button>
+</div>
+<main>
+<header class="doc">
+  <div class="caption">CCPP-I · Class 02</div>
+  <h1>NumPy</h1>
+  <p class="keys"><kbd>J</kbd>/<kbd>K</kbd> or <kbd>→</kbd>/<kbd>←</kbd> jump between sections</p>
+</header>
+
+<!-- ============================================================ -->
+<section class="step" id="arrays" data-nav="Lists vs arrays">
+  <h2>Arrays: numbers that do arithmetic</h2>
+  <p class="lead">An array holds numbers of one type. An operation applies to every element. Click an operation.</p>
+  <div class="viz cols">
+    <div>
+      <div class="term"><span class="prompt">$ </span>conda activate pytccm<br><span class="prompt">$ </span>conda install -c conda-forge numpy</div>
+<pre class="code" data-src>
+import numpy as np
+
+py_list = [1, 2, 3]
+np_array = np.array(py_list)
+</pre>
+    </div>
+    <div id="cmp"></div>
+  </div>
+  <h3>Every array knows its shape and type</h3>
+<pre class="code" data-src>
+np_array.shape, np_array.dtype, len(np_array)
+</pre>
+  <div class="out">(<span data-tip="A tuple with one number per axis. (3,) means one axis of length 3.">(3,)</span>, <span data-tip="64-bit integers. All elements share it.">dtype('int64')</span>, 3)</div>
+  <p class="muted"><code>np.sqrt(np_array)</code>, <code>np.exp</code>, <code>np.sin</code>… also work element by element.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="creating" data-nav="Creating arrays">
+  <h2>Creating arrays</h2>
+  <p class="lead"><code>arange</code> takes a step and stops <em>before</em> the end, like <code>range</code>. <code>linspace</code> takes a number of points and includes the end.</p>
+  <div class="viz cols">
+    <div>
+      <div class="controls">
+        <label>start <input type="range" id="ar-a" min="0" max="4" value="0"> <output id="ar-ao"></output></label>
+        <label>stop <input type="range" id="ar-b" min="1" max="10" value="10"> <output id="ar-bo"></output></label>
+        <label>step <input type="range" id="ar-s" min="0" max="4" value="2"> <output id="ar-so"></output></label>
+      </div>
+      <div class="result" id="ar-code"></div>
+      <div class="cells" id="ar-cells" style="margin-top:.5rem"></div>
+    </div>
+    <div>
+      <div class="controls">
+        <label>start <input type="range" id="ls-a" min="0" max="4" value="0"> <output id="ls-ao"></output></label>
+        <label>stop <input type="range" id="ls-b" min="1" max="10" value="1"> <output id="ls-bo"></output></label>
+        <label>num <input type="range" id="ls-n" min="2" max="9" value="5"> <output id="ls-no"></output></label>
+      </div>
+      <div class="result" id="ls-code"></div>
+      <div class="cells" id="ls-cells" style="margin-top:.5rem"></div>
+    </div>
+  </div>
+  <h3>Filled arrays: the shape is one argument, a tuple</h3>
+  <div class="viz cols3" id="fill-cards" style="grid-template-columns: repeat(4, minmax(0, 1fr))"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="shape" data-nav="Shape">
+  <h2>Shape: the same numbers, arranged differently</h2>
+  <p class="lead"><code>reshape</code> fills rows left to right, top to bottom. <code>-1</code> means "work it out". Colour follows the value.</p>
+<pre class="code" data-src>
+vec = np.arange(12)
+mat = vec.reshape(3, 4)
+</pre>
+  <div class="controls">
+    <label>rows <input type="range" id="rs-r" min="1" max="12" value="3"> <output id="rs-ro"></output></label>
+    <label>columns <input type="range" id="rs-c" min="0" max="12" value="4"> <output id="rs-co"></output></label>
+    <label><input type="checkbox" id="rs-t"> <code>.T</code> (transpose)</label>
+  </div>
+  <div class="result" id="rs-code"></div>
+  <div id="rs-grid" style="margin-top:.6rem"></div>
+  <p class="muted" style="margin-top:.8rem"><code>mat.flatten()</code> gives back the 12 numbers in one row.</p>
+  <h3>A third axis: a stack of matrices</h3>
+<pre class="code" data-src>
+np.arange(24).reshape(2, 3, 4)
+</pre>
+  <div id="rs-3d"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="indexing" data-nav="Indexing">
+  <h2>Indexing: <code>mat[row, column]</code></h2>
+  <p class="lead">One index or slice per axis, separated by a comma. <code>:</code> alone means "all".</p>
+  <div id="ix-mat"></div>
+  <h3>A comparison gives a boolean array; a boolean array selects</h3>
+  <div id="ix-vec"></div>
+  <p class="muted" style="margin-top:1.2rem">The same on a matrix. The selected elements always come out as a 1-D array.</p>
+  <div id="ix-matb"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="reductions" data-nav="Reductions">
+  <h2>Reductions along an axis</h2>
+  <p class="lead"><code>axis=0</code> collapses the rows: one result per column. <code>axis=1</code> collapses the columns: one per row. Hover a result.</p>
+  <div class="controls">
+    <span class="seg" id="rd-f"><button data-v="sum" class="on">sum</button><button data-v="mean">mean</button><button data-v="max">max</button></span>
+    <span class="seg" id="rd-ax"><button data-v="none" class="on">no axis</button><button data-v="0">axis=0</button><button data-v="1">axis=1</button></span>
+  </div>
+  <div class="viz cols">
+    <div id="rd-grid"></div>
+    <div>
+      <div class="result" id="rd-code"></div>
+      <div class="out" id="rd-out"></div>
+    </div>
+  </div>
+  <p class="muted"><code>mat.std(axis=1)</code>, <code>mat.min()</code> work the same way.</p>
+  <h3>Distance between two atoms</h3>
+<pre class="code" data-src>
+atom1 = np.array([0.0, 0.0, 0.0])
+atom2 = np.array([1.0, 1.0, 0.0])
+np.sqrt(np.sum((atom1 - atom2) ** 2)), np.linalg.norm(atom1 - atom2)
+</pre>
+  <div class="out">(np.float64(1.4142135623730951), np.float64(1.4142135623730951))</div>
+  <div class="eq" id="dist-chain"></div>
+</section>
+
+<section class="pause" id="ex1" data-nav="Exercise 1">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 1: Arrays</h2></div>
+  <div class="ex">
+    <p>Calculate the average of all integers below 100 that are divisible by 8, in three ways:</p>
+    <ol>
+      <li><code>np.arange</code> with a step, and <code>mean</code></li>
+      <li><code>np.arange(1, 97).reshape(12, 8)</code> and one column of it</li>
+      <li>a boolean mask with <code>%</code> on <code>np.arange(1, 100)</code></li>
+    </ol>
+<pre class="out">52.0
+52.0
+52.0</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="linalg" data-nav="Linear algebra">
+  <h2><code>*</code> is element by element, <code>@</code> is the matrix product</h2>
+  <p class="lead">Hover a result element of <code>mat @ vec</code>: a row of the matrix times the vector, summed.</p>
+<pre class="code" data-src>
+a = np.array([1, 2, 3])
+a * a, a @ a
+</pre>
+  <div class="out">(array([1, 4, 9]), np.int64(14))</div>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+mat = np.arange(6).reshape(2, 3)
+vec = np.array([1, 0, 1])
+mat @ vec
+</pre>
+      <div class="out">array([2, 8])</div>
+      <div class="result" id="mv-sum"></div>
+    </div>
+    <div class="eq" id="mv"></div>
+  </div>
+  <h3>The inner sizes must agree</h3>
+  <div class="viz cols">
+    <div id="mv-shapes"></div>
+    <div>
+<pre class="code" data-src>
+mat @ np.array([1, 0])
+</pre>
+      <div class="out"><span class="err">ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0, with gufunc signature (n?,k),(k,m?)-&gt;(n?,m?) (size 2 is different from 3)</span></div>
+    </div>
+  </div>
+  <h3>Inverse and identity</h3>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+m = np.array([[1, 2], [3, 4]])
+m_inv = np.linalg.inv(m)
+m @ m_inv
+</pre>
+      <div class="out">array([[1.0000000e+00, 0.0000000e+00],
+       [<span data-tip="Rounding error of floats: zero in practice. Never compare floats with ==.">8.8817842e-16</span>, 1.0000000e+00]])</div>
+    </div>
+    <div>
+<pre class="code" data-src>
+np.allclose(m @ m_inv, np.identity(2))
+</pre>
+      <div class="out">True</div>
+      <p class="muted"><code>allclose</code>: equal up to a tiny tolerance.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="files" data-nav="Files">
+  <h2>Reading and writing files</h2>
+  <p class="lead"><code>array.dat</code> holds the pyridine coordinates, one atom per line, x y z in Å.</p>
+  <div class="viz cols">
+    <div class="file"><span class="fname">array.dat</span> -0.180226841      0.360945118     -1.120304970
+ -0.180226841      1.559292118     -0.407860970
+ -0.180226841      1.503191118      0.986935030
+<span class="muted">… 11 lines</span></div>
+    <div>
+<pre class="code" data-src>
+xyz = np.loadtxt('array.dat')
+xyz.shape
+</pre>
+      <div class="out">(11, 3)</div>
+<pre class="code" data-src>
+xyz[:3]
+</pre>
+      <div class="out">array([[-0.18022684,  0.36094512, -1.12030497],
+       [-0.18022684,  1.55929212, -0.40786097],
+       [-0.18022684,  1.50319112,  0.98693503]])</div>
+    </div>
+  </div>
+  <div class="viz cols">
+<pre class="code" data-src>
+np.savetxt('xyz_copy.dat', xyz, fmt='%10.4f', header='x y z')
+</pre>
+    <div class="file"><span class="fname">xyz_copy.dat</span># x y z
+   -0.1802     0.3609    -1.1203
+   -0.1802     1.5593    -0.4079
+<span class="muted">…</span></div>
+  </div>
+  <p class="muted"><code>fmt='%10.4f'</code>: width 10, 4 decimals, as <code>{x:10.4f}</code> in an f-string.</p>
+</section>
+
+<section class="pause" id="ex2" data-nav="Exercise 2">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 2: Reading data</h2></div>
+  <div class="ex">
+    <p>Load <code>array.dat</code> with <code>np.loadtxt</code>. Print its shape, the geometric centre (<code>mean</code> along the right axis) and the distance between atoms 0 and 1 (<code>np.linalg.norm</code>).</p>
+<pre class="out">(11, 3)
+[-0.18022684  0.36094512  0.03922925]
+1.3941348519942394</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="broadcasting" data-nav="Broadcasting">
+  <h2>Broadcasting: arrays of different shapes</h2>
+  <p class="lead">Shapes are compared from the right. Two sizes fit if they are equal or one of them is 1; a size 1 is stretched by copying.</p>
+  <div class="controls" id="bc-presets"></div>
+  <div class="viz cols" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)">
+    <div class="controls" id="bc-a"></div>
+    <div class="controls" id="bc-b"></div>
+  </div>
+  <div class="viz cols" style="grid-template-columns: auto minmax(0, 1fr)">
+    <div id="bc-shapes"></div>
+    <div>
+      <div class="result" id="bc-code"></div>
+      <div class="out" id="bc-err" style="display:none"></div>
+    </div>
+  </div>
+  <div class="eq" id="bc-viz"></div>
+  <div class="legend"><span><i style="background:var(--c2)"></i>sizes equal</span><span><i style="background:var(--c4)"></i>size 1, stretched</span><span><i style="border:1px dashed var(--muted)"></i>missing axis, counts as 1</span><span><i style="border:1px dashed var(--muted);background:none"></i>copied cell</span></div>
+  <h3><code>None</code> in an index adds an axis of length 1</h3>
+<pre class="code" data-src>
+d = np.arange(4)
+d[:, None].shape
+</pre>
+  <div class="out">(4, 1)</div>
+  <div class="eq" id="bc-none"></div>
+  <h3>Three axes: the same rule</h3>
+<pre class="code" data-src>
+tensor = np.arange(24).reshape(2, 4, 3)
+(tensor + vec).shape
+</pre>
+  <div class="out">(2, 4, 3)</div>
+  <div id="bc-3d"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="distances" data-nav="Distance matrix">
+  <h2>The distance matrix in one line</h2>
+  <p class="lead">Every atom minus every atom. Row <em>i</em> repeats atom <em>i</em>, column <em>j</em> repeats atom <em>j</em>. Hover a cell.</p>
+<pre class="code" data-src>
+(xyz[:, None, :] - xyz).shape
+distances = np.linalg.norm(xyz[:, None, :] - xyz, axis=-1)
+</pre>
+  <div class="out">(11, 11, 3)</div>
+  <div class="controls">
+    <label>atoms shown <input type="range" id="dm-n" min="2" max="11" value="4"> <output id="dm-no"></output></label>
+  </div>
+  <div class="viz cols" style="grid-template-columns: auto minmax(0, 1fr)">
+    <div id="dm-shapes"></div>
+    <div class="result" id="dm-info"></div>
+  </div>
+  <div class="mol-wrap">
+    <div class="arr mol"><span class="shape">pyridine, y–z plane</span><svg id="dm-mol" viewBox="-2.5 -2.15 5.6 5.4"></svg></div>
+    <div class="blocks">
+      <div class="arr"><span class="shape" id="dm-l1"></span><div id="dm-diff"></div></div>
+      <div class="arr"><span class="shape" id="dm-l2"></span><div id="dm-dist"></div></div>
+    </div>
+  </div>
+  <div class="legend"><span><i style="background:var(--c2)"></i>below 1.6 Å: a bond</span></div>
+</section>
+
+<section class="pause" id="ex3" data-nav="Exercises 3–5">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercises 3–5: Distances</h2></div>
+  <div class="ex">
+    <h3>3. Distance matrix</h3>
+    <p>Build the 11 × 11 matrix of all interatomic distances with two nested <code>for</code> loops (<code>enumerate</code>) filling <code>np.zeros((11, 11))</code>. Check with <code>np.allclose</code> that it agrees with the broadcasting one-liner.</p>
+<pre class="out">True</pre>
+  </div>
+  <div class="ex">
+    <h3>4. Counting bonds</h3>
+    <p>Two atoms are bonded if their distance is below 1.6 Å. How many bonds does pyridine have? Count each pair once and ignore the diagonal: <code>np.triu</code> with <code>k=1</code>.</p>
+<pre class="out">11</pre>
+  </div>
+  <div class="ex">
+    <h3>5. Writing data</h3>
+    <p>Save the distance matrix to <code>distances.dat</code> with two decimals (<code>np.savetxt</code>, <code>fmt</code>), load it back and print the shape.</p>
+<pre class="out">(11, 11)</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="speed" data-nav="Speed">
+  <h2>Speed</h2>
+  <p class="lead">A Python loop handles one number at a time. An array operation runs the whole loop in compiled C.</p>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+%timeit sum([x**2 for x in range(1_000_000)])
+%timeit (np.arange(1_000_000)**2).sum()
+</pre>
+      <p class="muted"><code>%timeit</code> is a Jupyter command: it runs the line many times and reports the average.</p>
+    </div>
+    <div id="speed-bars"></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="xyz" data-nav="Text columns">
+  <h2>Text columns: reading an xyz file</h2>
+  <p class="lead"><code>dtype=str</code> reads everything as text. Take the columns apart, then convert the numbers. Hover the code.</p>
+  <div class="viz cols">
+    <div>
+<pre class="code"><code>raw = np.loadtxt('pyridine.xyz', <span class="g4" data-g="skip">skiprows=2</span>, dtype=str)
+<span class="g1" data-g="el">elements = raw[:, 0]</span>
+<span class="g3" data-g="xyz">coordinates = raw[:, 1:].astype(float)</span>
+elements, coordinates.mean(axis=0)</code></pre>
+      <div class="out">(array(['C', 'C', 'C', 'N', 'C', 'C', 'H', 'H', 'H', 'H', 'H'],
+      dtype=<span data-tip="Text of up to 12 characters.">'&lt;U12'</span>), array([-0.18022684,  0.36094512,  0.03922925]))</div>
+    </div>
+    <div class="file"><span class="fname">pyridine.xyz</span><span class="g4" data-g="skip">11
+</span><span class="g4" data-g="skip">
+</span><span class="g1" data-g="el">C</span>       <span class="g3" data-g="xyz">-0.180226841      0.360945118     -1.120304970</span>
+<span class="g1" data-g="el">C</span>       <span class="g3" data-g="xyz">-0.180226841      1.559292118     -0.407860970</span>
+<span class="g1" data-g="el">C</span>       <span class="g3" data-g="xyz">-0.180226841      1.503191118      0.986935030</span>
+<span class="g1" data-g="el">N</span>       <span class="g3" data-g="xyz">-0.180226841      0.360945118      1.29018350</span>
+<span class="muted">…</span></div>
+  </div>
+  <p class="muted">The same reader works for any xyz file: the homework and the plotting class use it.</p>
+</section>
+
+</main>
+
+<script>
+Course.init = function () {
+  const C = Course, $ = C.$, el = C.el, esc = C.esc;
+
+  /* shared helpers: a 2-D grid of cells */
+  function grid(rows, cols, make) {
+    const g = el('div', 'grid');
+    g.style.gridTemplateColumns = 'repeat(' + cols + ', auto)';
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) g.append(make(r, c));
+    return g;
+  }
+  const cell = (txt, cls) => el('div', 'cell' + (cls ? ' ' + cls : ''), esc(txt));
+  const fl = v => Number.isInteger(v) ? v + '.' : String(+v.toFixed(4));   // NumPy prints 1.0 as "1."
+  function box(label, node, shape) {
+    const b = el('div', 'arr');
+    if (label) b.append(el('span', 'result', C.hl(label)));
+    b.append(node);
+    if (shape) b.append(el('span', 'shape', (shape[0] === '(' ? 'shape ' : '') + esc(shape)));
+    return b;
+  }
+  const shapeStr = d => '(' + d.join(', ') + (d.length === 1 ? ',' : '') + ')';
+
+  /* shapes table: rows of [name, dims, classes per dim] aligned to the right */
+  function shapesTable(rows, nd) {
+    const t = el('div', 'shapes');
+    t.style.gridTemplateColumns = 'auto repeat(' + nd + ', 2.6em)';
+    rows.forEach(r => {
+      if (r === 'rule') { t.append(el('div', 'rule')); return; }
+      t.append(el('span', 'nm', C.hl(r.name)));
+      for (let k = 0; k < nd; k++) {
+        const off = k - (nd - r.dims.length);
+        if (off < 0) { t.append(r.pad ? el('span', 'd pad ' + (r.padCls || ''), '1') : el('span')); continue; }
+        t.append(el('span', 'd ' + ((r.cls && r.cls[off]) || ''), esc(r.dims[off])));
+      }
+    });
+    return t;
+  }
+
+  /* ---- lists vs arrays ---- */
+  (function () {
+    const ops = [
+      { b: '+ itself', l: 'py_list + py_list', a: 'np_array + np_array', lv: [1, 2, 3, 1, 2, 3], av: [2, 4, 6], ar: 'array([2, 4, 6])' },
+      { b: '* 2', l: 'py_list * 2', a: 'np_array * 2', lv: [1, 2, 3, 1, 2, 3], av: [2, 4, 6], ar: 'array([2, 4, 6])' },
+      { b: '/ 2', l: 'py_list / 2', a: 'np_array / 2', le: "TypeError: unsupported operand type(s) for /: 'list' and 'int'", av: ['0.5', '1.', '1.5'], ar: 'array([0.5, 1. , 1.5])' },
+      { b: '** 2', l: 'py_list ** 2', a: 'np_array ** 2', le: "TypeError: unsupported operand type(s) for ** or pow(): 'list' and 'int'", av: [1, 4, 9], ar: 'array([1, 4, 9])' },
+      { b: '[1:]', l: 'py_list[1:]', a: 'np_array[1:]', lv: [2, 3], av: [2, 3], ar: 'array([2, 3])' },
+      { b: '[::-1]', l: 'py_list[::-1]', a: 'np_array[::-1]', lv: [3, 2, 1], av: [3, 2, 1], ar: 'array([3, 2, 1])' },
+    ];
+    const host = $('#cmp');
+    const list = el('div', 'controls'), seg = el('span', 'seg code');
+    list.append(seg);
+    const view = el('div');
+    host.append(list, view);
+    const btns = ops.map((op, k) => { const b = el('button', '', esc(op.b)); b.onclick = () => show(k); seg.append(b); return b; });
+    function row(code, vals, err, rep) {
+      const d = el('div'); d.style.margin = '.7rem 0';
+      d.append(el('div', 'result', C.hl(code)));
+      if (err) { d.append(el('div', 'out', '<span class="err">' + esc(err) + '</span>')); return d; }
+      const cs = el('div', 'cells'); cs.style.marginTop = '.3rem';
+      vals.forEach(v => cs.append(cell(String(v), 'sel')));
+      d.append(cs);
+      d.append(el('div', 'out', esc(rep)));
+      return d;
+    }
+    function show(k) {
+      const op = ops[k];
+      btns.forEach((b, j) => b.classList.toggle('on', j === k));
+      view.innerHTML = '';
+      view.append(row(op.l, op.lv, op.le, op.lv && '[' + op.lv.join(', ') + ']'), row(op.a, op.av, null, op.ar));
+    }
+    show(0);
+  })();
+
+  /* ---- arange / linspace ---- */
+  const STEPS = [0.25, 0.5, 1, 2, 3];
+  function arangeW() {
+    const a = +$('#ar-a').value, b = +$('#ar-b').value, s = STEPS[+$('#ar-s').value];
+    $('#ar-ao').textContent = a; $('#ar-bo').textContent = b; $('#ar-so').textContent = s;
+    const n = Math.max(0, Math.ceil((b - a) / s - 1e-9)), isInt = Number.isInteger(s);
+    const args = a === 0 && s === 1 ? String(b) : a + ', ' + b + (s === 1 ? '' : ', ' + s);
+    $('#ar-code').innerHTML = C.hl('np.arange(' + args + ')');
+    const cs = $('#ar-cells'); cs.innerHTML = '';
+    for (let k = 0; k < n; k++) { const v = a + k * s; cs.append(cell(isInt ? String(v) : fl(v), 'sel')); }
+    const g = cell(isInt ? String(b) : fl(b), 'bad'); g.title = 'stop: not included'; cs.append(g);
+    if (!n) cs.prepend(el('span', 'muted', 'empty array'));
+  }
+  function linspaceW() {
+    const a = +$('#ls-a').value, b = +$('#ls-b').value, n = +$('#ls-n').value;
+    $('#ls-ao').textContent = a; $('#ls-bo').textContent = b; $('#ls-no').textContent = n;
+    $('#ls-code').innerHTML = C.hl('np.linspace(' + a + ', ' + b + ', ' + n + ')');
+    const cs = $('#ls-cells'); cs.innerHTML = '';
+    for (let k = 0; k < n; k++) cs.append(cell(fl(a + k * (b - a) / (n - 1)), 'sel'));
+  }
+  ['#ar-a', '#ar-b', '#ar-s'].forEach(s => $(s).addEventListener('input', arangeW)); arangeW();
+  ['#ls-a', '#ls-b', '#ls-n'].forEach(s => $(s).addEventListener('input', linspaceW)); linspaceW();
+  (function () {
+    const rand = [[0.24, 0.84, 0.66], [0.32, 0.48, 0.46]];
+    const cards = [
+      ['np.zeros(3)', grid(1, 3, () => cell('0.')), '(3,)'],
+      ['np.ones((2, 3))', grid(2, 3, () => cell('1.')), '(2, 3)'],
+      ['np.identity(3)', grid(3, 3, (r, c) => cell(r === c ? '1.' : '0.', r === c ? 'sel' : '')), '(3, 3)'],
+      ['np.random.rand(2, 3)', grid(2, 3, (r, c) => cell(rand[r][c] + '…')), '(2, 3), uniform in [0, 1)'],
+    ];
+    cards.forEach(([code, g, sh]) => { const d = el('div', 'card'); d.append(box(code, g, sh)); $('#fill-cards').append(d); });
+  })();
+
+  /* ---- reshape ---- */
+  const shade = v => 'color-mix(in oklch, var(--accent) ' + Math.round(8 + v * 4.5) + '%, var(--code-bg))';
+  function reshapeW() {
+    const r = +$('#rs-r').value, c0 = +$('#rs-c').value, t = $('#rs-t').checked;
+    $('#rs-ro').textContent = r; $('#rs-co').textContent = c0 === 0 ? '-1' : c0;
+    const code = 'vec.reshape(' + r + ', ' + (c0 === 0 ? -1 : c0) + ')' + (t ? '.T' : '');
+    const host = $('#rs-grid'); host.innerHTML = '';
+    let c = c0, err = null;
+    if (c0 === 0) { if (12 % r) err = 'ValueError: cannot reshape array of size 12 into shape (' + r + ',newaxis)'; else c = 12 / r; }
+    else if (r * c0 !== 12) err = 'ValueError: cannot reshape array of size 12 into shape (' + r + ',' + c0 + ')';
+    if (err) { $('#rs-code').innerHTML = C.hl(code) + '<span class="arrow">→</span><span class="err">' + esc(err) + '</span>'; return; }
+    const R = t ? c : r, K = t ? r : c;
+    $('#rs-code').innerHTML = C.hl(code) + '<span class="arrow">→</span>shape (' + R + ', ' + K + ')';
+    host.append(grid(R, K, (i, j) => { const v = t ? j * c + i : i * c + j; const x = cell(String(v)); x.style.background = shade(v); return x; }));
+  }
+  ['#rs-r', '#rs-c', '#rs-t'].forEach(s => $(s).addEventListener('input', reshapeW)); reshapeW();
+  (function () {
+    const w = el('div', 'blocks');
+    [0, 1].forEach(k => w.append(box(null, grid(3, 4, (i, j) => { const v = 12 * k + 4 * i + j; const x = cell(String(v)); x.style.background = shade(v / 2); return x; }), '[' + k + ']: 3 × 4')));
+    $('#rs-3d').append(w, el('p', 'muted', 'shape (2, 3, 4): 2 matrices, each 3 × 4.'));
+  })();
+
+  /* ---- indexing ---- */
+  function matGrid(rows, cols, val, sel) {
+    const g = el('div', 'grid');
+    g.style.gridTemplateColumns = 'auto repeat(' + cols + ', auto)';
+    g.append(el('div'));
+    for (let j = 0; j < cols; j++) g.append(el('div', 'idx', String(j)));
+    for (let i = 0; i < rows; i++) {
+      g.append(el('div', 'idx', String(i)));
+      for (let j = 0; j < cols; j++) g.append(cell(String(val(i, j)), sel(i, j) ? 'sel' : ''));
+    }
+    g.querySelectorAll('.idx').forEach(x => x.style.alignSelf = 'center');
+    return g;
+  }
+  C.ops($('#ix-mat'), {
+    init: () => ({}),
+    render: (st, view, info) => { const s = info.sel || (() => false); view.append(box('mat', matGrid(3, 4, (i, j) => 4 * i + j, s), '(3, 4)')); },
+    ops: [
+      { code: 'mat[1, 2]', apply: (st, info) => { info.sel = (i, j) => i === 1 && j === 2; return 'np.int64(6)'; } },
+      { code: 'mat[1]', apply: (st, info) => { info.sel = i => i === 1; return 'array([4, 5, 6, 7])'; } },
+      { code: 'mat[:, 2]', apply: (st, info) => { info.sel = (i, j) => j === 2; return 'array([ 2,  6, 10])'; } },
+      { code: 'mat[::2, 1:]', apply: (st, info) => { info.sel = (i, j) => i % 2 === 0 && j >= 1; return 'array([[ 1,  2,  3],\n       [ 9, 10, 11]])'; } },
+    ]
+  });
+  C.ops($('#ix-vec'), {
+    init: () => ({}),
+    render: (st, view, info) => {
+      const g = el('div', 'grid'); g.style.gridTemplateColumns = 'repeat(12, auto)';
+      for (let k = 0; k < 12; k++) g.append(el('div', 'idx', String(k)));
+      for (let k = 0; k < 12; k++) g.append(cell(String(k), info.mask && k % 3 === 0 ? 'sel' : info.mask === 'pick' ? 'dim' : ''));
+      if (info.mask) for (let k = 0; k < 12; k++) { const b = el('span', 'badge ' + (k % 3 === 0 ? 't' : 'f'), k % 3 === 0 ? 'True' : 'False'); b.style.cssText = 'font-size:.55rem;border-radius:999px;padding:0 .3em;justify-self:center'; g.append(b); }
+      view.append(box('vec', g, '(12,)'));
+      if (info.mask === 'pick') { const cs = el('div', 'cells'); [0, 3, 6, 9].forEach(v => cs.append(cell(String(v), 'sel'))); view.append(box('vec[vec % 3 == 0]', cs, '(4,)')); }
+    },
+    ops: [
+      { code: 'vec % 3 == 0', apply: (st, info) => { info.mask = true; return 'array([ True, False, False,  True, False, False,  True, False, False,\n        True, False, False])'; } },
+      { code: 'vec[vec % 3 == 0]', apply: (st, info) => { info.mask = 'pick'; return 'array([0, 3, 6, 9])'; } },
+    ]
+  });
+  (function () {
+    const tests = { gt: v => v > 5, even: v => v % 2 === 0 };
+    C.ops($('#ix-matb'), {
+      init: () => ({}),
+      render: (st, view, info) => {
+        const t = tests[info.t];
+        // like vec above: True cells highlighted, each cell labelled True/False; selecting dims the rest
+        const g = matGrid(3, 4, (i, j) => 4 * i + j, (i, j) => t && t(4 * i + j));
+        if (t) g.querySelectorAll('.cell').forEach((c, k) => {
+          const ok = t(k);
+          if (info.show === 'pick' && !ok) c.classList.add('dim');
+          c.style.cssText = 'height:auto;padding:.2em .5em;flex-direction:column;display:flex;gap:.1em';
+          c.append(el('span', 'badge ' + (ok ? 't' : 'f'), ok ? 'True' : 'False'));
+          c.lastChild.style.cssText = 'font-size:.55rem;border-radius:999px;padding:0 .3em';
+        });
+        view.append(box('mat', g, '(3, 4)'));
+        if (info.show === 'pick') {
+          const cs = el('div', 'cells'); for (let v = 0; v < 12; v++) if (t(v)) cs.append(cell(String(v), 'sel'));
+          view.append(box(null, cs, '(' + cs.children.length + ',)'));
+        }
+      },
+      ops: [
+        { code: 'mat > 5', apply: (st, info) => { info.t = 'gt'; info.show = 'mask'; return 'array([[False, False, False, False],\n       [False, False,  True,  True],\n       [ True,  True,  True,  True]])'; } },
+        { code: 'mat[mat > 5]', apply: (st, info) => { info.t = 'gt'; info.show = 'pick'; return 'array([ 6,  7,  8,  9, 10, 11])'; } },
+        { code: 'mat % 2 == 0', apply: (st, info) => { info.t = 'even'; info.show = 'mask'; return 'array([[ True, False,  True, False],\n       [ True, False,  True, False],\n       [ True, False,  True, False]])'; } },
+        { code: 'mat[mat % 2 == 0]', apply: (st, info) => { info.t = 'even'; info.show = 'pick'; return 'array([ 0,  2,  4,  6,  8, 10])'; } },
+      ]
+    });
+  })();
+  $('#ix-vec .viz').style.gridTemplateColumns = 'minmax(0, 1fr) minmax(0, 2fr)';
+
+  /* ---- reductions ---- */
+  (function () {
+    let f = 'sum', ax = 'none';
+    const M = [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]];
+    const red = { sum: a => a.reduce((x, y) => x + y, 0), mean: a => a.reduce((x, y) => x + y, 0) / a.length, max: a => Math.max(...a) };
+    const fmt = v => f === 'mean' ? fl(v) : String(v);
+    const REPR = {
+      'sum.none': 'np.int64(66)', 'sum.0': 'array([12, 15, 18, 21])', 'sum.1': 'array([ 6, 22, 38])',
+      'mean.none': 'np.float64(5.5)', 'mean.0': 'array([4., 5., 6., 7.])', 'mean.1': 'array([1.5, 5.5, 9.5])',
+      'max.none': 'np.int64(11)', 'max.0': 'array([ 8,  9, 10, 11])', 'max.1': 'array([ 3,  7, 11])',
+    };
+    function render() {
+      const host = $('#rd-grid'); host.innerHTML = '';
+      const g = el('div', 'grid'); g.style.gridTemplateColumns = 'repeat(5, auto)';
+      const cells = M.map(row => row.map(v => cell(String(v))));
+      const results = [];
+      const add = (x, contrib) => { results.push([x, contrib]); return x; };
+      for (let i = 0; i < 3; i++) {
+        cells[i].forEach(x => g.append(x));
+        if (ax === '1') g.append(add(cell(fmt(red[f](M[i])), 'res'), cells[i])); else g.append(el('div'));
+      }
+      if (ax === '0') for (let j = 0; j < 4; j++) g.append(add(cell(fmt(red[f](M.map(r => r[j]))), 'res'), cells.map(r => r[j])));
+      else if (ax === 'none') { for (let j = 0; j < 4; j++) g.append(el('div')); g.append(add(cell(fmt(red[f](M.flat())), 'res'), cells.flat())); }
+      g.children.length && [...g.children].filter(x => x.classList.contains('res')).forEach(x => x.style.marginTop = ax === '0' ? '.5rem' : '');
+      results.forEach(([x, contrib]) => {
+        x.addEventListener('mouseenter', () => { cells.flat().forEach(c => c.classList.toggle('dim', !contrib.includes(c))); contrib.forEach(c => c.classList.add('hot')); x.classList.add('hot'); });
+        x.addEventListener('mouseleave', () => { cells.flat().forEach(c => c.classList.remove('dim', 'hot')); x.classList.remove('hot'); });
+      });
+      host.append(box('mat', g, '(3, 4)'));
+      const code = 'mat.' + f + '(' + (ax === 'none' ? '' : 'axis=' + ax) + ')';
+      $('#rd-code').innerHTML = C.hl(code) + '<span class="arrow">→</span>' + (ax === 'none' ? 'one number' : ax === '0' ? 'shape (4,): one per column' : 'shape (3,): one per row');
+      $('#rd-out').innerHTML = '<span class="label">output</span>' + esc(REPR[f + '.' + ax]);
+    }
+    const segs = (id, set) => $(id).querySelectorAll('button').forEach(b => b.onclick = () => { $(id).querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); set(b.dataset.v); render(); });
+    segs('#rd-f', v => f = v); segs('#rd-ax', v => ax = v);
+    render();
+  })();
+
+  /* ---- mat @ vec ---- */
+  (function () {
+    const M = [[0, 1, 2], [3, 4, 5]], V = [1, 0, 1];
+    const mc = M.map(r => r.map(v => cell(String(v))));
+    const vc = V.map(v => cell(String(v)));
+    const res = M.map(r => cell(String(r.reduce((s, x, k) => s + x * V[k], 0)), 'res'));
+    const g = el('div', 'grid'); g.style.gridTemplateColumns = 'repeat(3, auto)'; mc.flat().forEach(x => g.append(x));
+    const gv = el('div', 'grid'); gv.style.gridTemplateColumns = 'auto'; vc.forEach(x => gv.append(x));
+    const gr = el('div', 'grid'); gr.style.gridTemplateColumns = 'auto'; res.forEach(x => gr.append(x));
+    $('#mv').append(box('mat', g, '(2, 3)'), el('span', 'opsym', '@'), box('vec', gv, '(3,)'), el('span', 'opsym', '='), box(null, gr, '(2,)'));
+    function pick(i) {
+      mc.forEach((r, k) => r.forEach(x => { x.classList.toggle('sel', k === i); x.classList.toggle('dim', k !== i); }));
+      vc.forEach(x => x.classList.add('sel'));
+      res.forEach((x, k) => x.classList.toggle('hot', k === i));
+      $('#mv-sum').innerHTML = M[i].map((x, k) => x + '·' + V[k]).join(' + ') + ' = ' + res[i].textContent;
+    }
+    res.forEach((x, i) => x.addEventListener('mouseenter', () => pick(i)));
+    pick(0);
+    $('#mv-shapes').append(shapesTable([
+      { name: 'mat', dims: [2, 3], cls: ['', 'ok'] },
+      { name: 'vec', dims: [3], cls: ['ok'] },
+      'rule',
+      { name: 'mat @ vec', dims: [2], cls: [''] },
+    ], 2), el('p', 'muted', 'The last size of mat meets the size of vec; it disappears in the sum.'));
+  })();
+  (function () {
+    const steps = [['atom1 - atom2', ['-1.', '-1.', '0.']], ['** 2', ['1.', '1.', '0.']], ['np.sum', ['2.']], ['np.sqrt', ['1.414…']]];
+    const w = $('#dist-chain');
+    steps.forEach(([code, vals], k) => {
+      if (k) w.append(el('span', 'opsym', '→'));
+      const cs = el('div', 'cells'); vals.forEach(v => cs.append(cell(String(v), k === steps.length - 1 ? 'sel' : '')));
+      w.append(box(code, cs));
+    });
+  })();
+
+  /* ---- broadcasting ---- */
+  (function () {
+    const st = { a: { nd: 2, r: 4, c: 3, name: 'mat' }, b: { nd: 1, r: 1, c: 3, name: 'vec' } };
+    const presets = [
+      ['mat + vec', { nd: 2, r: 4, c: 3, name: 'mat' }, { nd: 1, r: 1, c: 3, name: 'vec' }],
+      ['mat + d', { nd: 2, r: 4, c: 3, name: 'mat' }, { nd: 1, r: 1, c: 4, name: 'd' }],
+      ['mat + d[:, None]', { nd: 2, r: 4, c: 3, name: 'mat' }, { nd: 2, r: 4, c: 1, name: 'd[:, None]' }],
+    ];
+    const pseg = el('span', 'seg code');
+    const pbtn = presets.map(p => { const b = el('button', '', C.hl(p[0])); b.onclick = () => { st.a = { ...p[1] }; st.b = { ...p[2] }; sync(); }; pseg.append(b); return b; });
+    $('#bc-presets').append(el('span', 'muted', 'examples'), pseg);
+    function controls(host, key) {
+      const s = el('span', 'seg'), b1 = el('button', '', '1-D'), b2 = el('button', '', '2-D');
+      s.append(b1, b2);
+      const lr = el('label', '', 'rows <input type="range" min="1" max="4"> <output></output>');
+      const lc = el('label', '', 'columns <input type="range" min="1" max="4"> <output></output>');
+      const nm = el('span', 'result');
+      host.append(nm, s, lr, lc);
+      const custom = () => { st.a.name = 'a'; st.b.name = 'b'; };
+      b1.onclick = () => { custom(); st[key].nd = 1; sync(); };
+      b2.onclick = () => { custom(); st[key].nd = 2; sync(); };
+      lr.querySelector('input').oninput = e => { custom(); st[key].r = +e.target.value; sync(); };
+      lc.querySelector('input').oninput = e => { custom(); st[key].c = +e.target.value; sync(); };
+      return { nm, b1, b2, lr, lc };
+    }
+    const ca = controls($('#bc-a'), 'a'), cb = controls($('#bc-b'), 'b');
+    function syncCtl(c, o) {
+      c.nm.innerHTML = C.hl(o.name);
+      c.b1.classList.toggle('on', o.nd === 1); c.b2.classList.toggle('on', o.nd === 2);
+      c.lr.querySelector('input').value = o.r; c.lr.querySelector('output').textContent = o.nd === 1 ? '—' : o.r;
+      c.lr.classList.toggle('off', o.nd === 1); c.lr.querySelector('input').disabled = o.nd === 1;
+      c.lc.querySelector('input').value = o.c; c.lc.querySelector('output').textContent = o.c;
+    }
+    const dims = o => o.nd === 1 ? [o.c] : [o.r, o.c];
+    const npShape = o => '(' + dims(o).join(',') + (o.nd === 1 ? ',' : '') + ')';
+    function sync() {
+      syncCtl(ca, st.a); syncCtl(cb, st.b);
+      const code = st.a.name + ' + ' + st.b.name;
+      pbtn.forEach((b, k) => b.classList.toggle('on', presets[k][0] === code));
+      const A = st.a, B = st.b, nd = Math.max(A.nd, B.nd);
+      const pa = [A.nd === 1 ? 1 : A.r, A.c], pb = [B.nd === 1 ? 1 : B.r, B.c];   // padded to 2-D
+      const ok = [], clsA = [], clsB = [], out = [];
+      for (let k = 0; k < 2; k++) {
+        const x = pa[k], y = pb[k];
+        if (x === y) { out.push(x); clsA.push('ok'); clsB.push('ok'); }
+        else if (x === 1) { out.push(y); clsA.push('st'); clsB.push(''); }
+        else if (y === 1) { out.push(x); clsA.push(''); clsB.push('st'); }
+        else { out.push(null); clsA.push('bad'); clsB.push('bad'); }
+      }
+      const good = !out.includes(null);
+      const trim = (cls, o) => o.nd === 1 ? [cls[1]] : cls;
+      const rDims = nd === 1 ? [out[1]] : out;
+      $('#bc-shapes').innerHTML = '';
+      $('#bc-shapes').append(shapesTable([
+        { name: A.name, dims: dims(A), cls: trim(clsA, A), pad: true, padCls: clsA[0] },
+        { name: B.name, dims: dims(B), cls: trim(clsB, B), pad: true, padCls: clsB[0] },
+        'rule',
+        { name: 'result', dims: good ? rDims : rDims.map(v => v == null ? '✗' : v), cls: good ? [] : rDims.map(v => v == null ? 'bad' : '') },
+      ], nd));
+      $('#bc-code').innerHTML = C.hl(code) + '<span class="arrow">→</span>' + (good ? 'shape ' + shapeStr(rDims) : 'error');
+      const err = $('#bc-err');
+      err.style.display = good ? 'none' : '';
+      err.innerHTML = '<span class="err">ValueError: operands could not be broadcast together with shapes ' + npShape(A) + ' ' + npShape(B) + ' </span>';
+      const v = $('#bc-viz'); v.innerHTML = '';
+      const given = o => grid(o.nd === 1 ? 1 : o.r, o.c, (i, j) => cell(String(i * o.c + j)));
+      v.append(box(A.name, given(A), shapeStr(dims(A))), el('span', 'opsym', '+'), box(B.name, given(B), shapeStr(dims(B))));
+      if (!good) return;
+      const [R, K] = out;
+      const valOf = (o, p, i, j) => { const ii = p[0] === 1 ? 0 : i, jj = p[1] === 1 ? 0 : j; return { v: ii * o.c + jj, copy: ii !== i || jj !== j }; };
+      const stretched = (o, p) => grid(R, K, (i, j) => { const x = valOf(o, p, i, j); return cell(String(x.v), x.copy ? 'copy' : ''); });
+      v.append(el('span', 'opsym', '→'), box(null, stretched(A, pa), 'stretched to ' + shapeStr(out)), el('span', 'opsym', '+'), box(null, stretched(B, pb), 'stretched to ' + shapeStr(out)),
+        el('span', 'opsym', '='), box(null, grid(R, K, (i, j) => cell(String(valOf(A, pa, i, j).v + valOf(B, pb, i, j).v), 'res')), shapeStr(rDims)));
+    }
+    sync();
+    const col = grid(4, 1, i => cell(String(i), 'sel')), row = grid(1, 4, (i, j) => cell(String(j), 'sel'));
+    $('#bc-none').append(box('d', row, '(4,)'), el('span', 'opsym', '→'), box('d[:, None]', col, '(4, 1)'));
+    $('#bc-3d').append(shapesTable([
+      { name: 'tensor', dims: [2, 4, 3], cls: ['', '', 'ok'], pad: true },
+      { name: 'vec', dims: [3], cls: ['ok'], pad: true, padCls: 'st' },
+      'rule',
+      { name: 'result', dims: [2, 4, 3] },
+    ], 3));
+  })();
+
+  /* ---- distance matrix ---- */
+  (function () {
+    const names = ['C', 'C', 'C', 'N', 'C', 'C', 'H', 'H', 'H', 'H', 'H'].map((s, i) => s + i);
+    const X = [[-0.180226841, 0.360945118, -1.120304970], [-0.180226841, 1.559292118, -0.407860970], [-0.180226841, 1.503191118, 0.986935030],
+      [-0.180226841, 0.360945118, 1.29018350], [-0.180226841, -0.781300882, 0.986935030], [-0.180226841, -0.837401882, -0.407860970],
+      [-0.180226841, 0.360945118, -2.206546970], [-0.180226841, 2.517950118, -0.917077970], [-0.180226841, 2.421289118, 1.572099030],
+      [-0.180226841, -1.699398882, 1.572099030], [-0.180226841, -1.796059882, -0.917077970]];
+    const f2 = v => { const s = v.toFixed(2); return s === '-0.00' ? '0.00' : s; };
+    const v3 = a => a.map(f2).join('\n');
+    const sub = (a, b) => a.map((x, k) => x - b[k]);
+    const norm = a => Math.sqrt(a.reduce((s, x) => s + x * x, 0));
+    const NS = 'http://www.w3.org/2000/svg', mol = $('#dm-mol');
+    const svg = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
+    const P = X.map(a => [a[1], -a[2]]);
+    X.forEach((a, i) => X.forEach((b, j) => { if (j > i && norm(sub(a, b)) < 1.6) mol.append(svg('line', { class: 'bnd', x1: P[i][0], y1: P[i][1], x2: P[j][0], y2: P[j][1] })); }));
+    const pair = svg('line', { class: 'pair' }), plab = svg('text', { class: 'plab', x: .3, y: 3.0 });
+    mol.append(pair);
+    const atoms = P.map((p, i) => { const g = svg('g', { class: 'atom ' + names[i][0] }); g.append(svg('circle', { cx: p[0], cy: p[1], r: names[i][0] === 'H' ? .2 : .3 }), svg('text', { x: p[0], y: p[1] })); g.lastChild.textContent = names[i]; mol.append(g); return g; });
+    mol.append(plab);
+    function render() {
+      const n = +$('#dm-n').value; $('#dm-no').textContent = n;
+      atoms.forEach((g, k) => g.classList.toggle('off', k >= n));
+      $('#dm-shapes').innerHTML = '';
+      $('#dm-shapes').append(shapesTable([
+        { name: 'xyz[:, None, :]', dims: [n, 1, 3], cls: ['ok', 'st', 'ok'] },
+        { name: 'xyz', dims: [n, 3], cls: ['st', 'ok'], pad: true, padCls: 'st' },
+        'rule',
+        { name: 'difference', dims: [n, n, 3] },
+        { name: 'norm(…, axis=-1)', dims: [n, n] },
+      ], 3));
+      $('#dm-l1').innerHTML = 'xyz[:, None, :] - xyz <b>(' + n + ', ' + n + ', 3)</b>';
+      $('#dm-l2').innerHTML = 'distances <b>(' + n + ', ' + n + ')</b>';
+      const dg = el('div', 'grid'), sg = el('div', 'grid');
+      dg.style.gridTemplateColumns = sg.style.gridTemplateColumns = 'auto repeat(' + n + ', auto)';
+      const colH = [], rowH = [], dRow = [], sRow = [], sColH = [], sRowH = [];
+      dg.append(el('div'));
+      sg.append(el('div'));
+      for (let j = 0; j < n; j++) {
+        const h = el('div', 'cell v3 copy', esc(names[j] + '\n' + v3(X[j]))); h.title = 'xyz[' + j + ']'; colH.push(h); dg.append(h);
+        const s = el('div', 'idx', names[j]); sColH.push(s); sg.append(s);
+      }
+      for (let i = 0; i < n; i++) {
+        const h = el('div', 'cell v3 copy', esc(names[i] + '\n' + v3(X[i]))); rowH.push(h); dg.append(h);
+        const s = el('div', 'idx', names[i]); s.style.alignSelf = 'center'; sRowH.push(s); sg.append(s);
+        dRow.push([]); sRow.push([]);
+        for (let j = 0; j < n; j++) {
+          const d = sub(X[i], X[j]), dist = norm(d);
+          const c1 = el('div', 'cell v3', esc(v3(d))), c2 = cell(f2(dist), i === j ? 'dim' : dist < 1.6 ? 'bond' : '');
+          [c1, c2].forEach(c => c.addEventListener('mouseenter', () => pick(i, j)));
+          dRow[i].push(c1); sRow[i].push(c2); dg.append(c1); sg.append(c2);
+        }
+      }
+      [...dg.children, ...sg.children].forEach(c => { if (c.classList.contains('v3')) { c.style.height = 'auto'; c.style.padding = '.25em .4em'; } });
+      function pick(i, j) {
+        [...dRow.flat(), ...sRow.flat(), ...colH, ...rowH].forEach(c => c.classList.remove('hot'));
+        [...sColH, ...sRowH].forEach(c => c.classList.remove('hot'));
+        dRow[i][j].classList.add('hot'); sRow[i][j].classList.add('hot'); rowH[i].classList.add('hot'); colH[j].classList.add('hot');
+        sRowH[i].classList.add('hot'); sColH[j].classList.add('hot');
+        const d = sub(X[i], X[j]);
+        atoms.forEach((g, k) => g.classList.toggle('hot', k === i || k === j));
+        [['x1', P[i][0]], ['y1', P[i][1]], ['x2', P[j][0]], ['y2', P[j][1]]].forEach(([k, v]) => pair.setAttribute(k, v));
+        plab.textContent = i === j ? names[i] : names[i] + '–' + names[j] + '  ' + f2(norm(d)) + ' Å';
+        $('#dm-info').innerHTML = C.hl('xyz[' + i + '] - xyz[' + j + ']') + '<span class="arrow">→</span>[' + d.map(f2).join(', ') + ']<br>' +
+          C.hl('np.linalg.norm(…)') + '<span class="arrow">→</span>' + f2(norm(d)) + ' Å <span class="muted">(' + names[i] + '–' + names[j] + ')</span>';
+      }
+      $('#dm-diff').innerHTML = ''; $('#dm-dist').innerHTML = '';
+      $('#dm-diff').append(dg); $('#dm-dist').append(sg);
+      pick(Math.min(1, n - 1), 0);
+    }
+    $('#dm-n').addEventListener('input', render); render();
+  })();
+
+  /* ---- speed ---- */
+  (function () {
+    const rows = [['list comprehension', 63.8, 'ms'], ['NumPy', 0.531, 'ms']];
+    const w = $('#speed-bars');
+    rows.forEach(([lab, t]) => {
+      const d = el('div'); d.style.margin = '.5rem 0';
+      d.append(el('div', 'result', esc(lab) + '<span class="arrow">→</span>' + t + ' ms'));
+      const bar = el('div'); bar.style.cssText = 'height:1.1rem;border-radius:4px;background:var(--accent);margin-top:.25rem;width:' + Math.max(0.6, 100 * t / 63.8) + '%';
+      d.append(bar); w.append(d);
+    });
+    w.append(el('p', 'muted', 'About 120 times faster (one laptop; your numbers will differ).'));
+  })();
+};
+</script>
+</body>
+</html>
