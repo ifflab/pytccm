@@ -360,6 +360,30 @@ footer.doc { margin-top: 2rem; color: var(--muted); font-size: .9em; }
 .legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .8rem; color: var(--muted); margin: .4rem 0; }
 .legend i { display: inline-block; width: .9em; height: .9em; border-radius: 3px; vertical-align: -.1em; margin-right: .3em; }
 
+/* matplotlib-like figures (Class 03): white like a Jupyter output in both themes */
+.mpl { display: block; width: 100%; max-width: 32rem; background: #fff; border: 1px solid var(--border); border-radius: 6px; font-family: "DejaVu Sans", Verdana, var(--sans); }
+.mpl text { fill: #000; font-size: 11px; }
+.mpl .ttl { font-size: 13px; }
+.mpl .mi { font-style: italic; }
+.mpl .ax, .mpl .tk { fill: none; stroke: #000; stroke-width: .8; }
+.mpl .legbox { fill: #fff; fill-opacity: .85; stroke: #ccc; }
+.mpl .hl { stroke: #e8590c; stroke-width: 2.5; fill: none; }
+.mpl.wide { max-width: 44rem; }
+.figs { display: flex; flex-wrap: wrap; gap: 1rem; align-items: start; }
+.figs .mpl { width: 24rem; max-width: 100%; }
+section.pause .ex .mpl { max-width: 24rem; margin: .4rem 0; }
+.ops button.off { color: var(--muted); text-decoration: line-through; }
+.term pre { margin: .4rem 0 0; font: inherit; white-space: pre-wrap; }
+.term .err { color: #f28b82; }
+.term .exit { color: #88c0d0; font-size: .8em; }
+.term input { border-bottom: 1px dashed #4c566a; }
+.inch { border: 2px solid var(--accent); border-radius: 3px; display: grid; place-items: center; font-family: var(--mono); font-size: .8rem; color: var(--muted); background: var(--accent-bg); }
+.axgrid { display: inline-grid; gap: .5rem; padding: .5rem; border: 2px solid var(--accent); border-radius: 6px; }
+.axgrid .axcell { border: 1px solid var(--fg); background: var(--bg); font-family: var(--mono); font-size: .85rem; display: grid; place-items: center; min-width: 6.5rem; height: 4rem; }
+.axgrid .axcell.hot { background: var(--sel); color: var(--sel-fg); }
+.mol3d svg { display: block; width: 100%; max-width: 30rem; background: #fff; border: 1px solid var(--border); border-radius: 6px; cursor: grab; touch-action: none; user-select: none; }
+.mol3d text { font-family: var(--mono); }
+
 @media (max-width: 900px) {
   main { padding: 1rem 16px 4rem; }
   .viz.cols, .viz.cols3, .tracer { grid-template-columns: 1fr; }

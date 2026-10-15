@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plotting, SciPy, ASE</title>
+<meta name="description" content="Class 3 of the CCPP-I Python course: argparse, Matplotlib, SciPy integration, interpolation and optimization, SymPy and ASE.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="course.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="course.js"></script>
+<style>
+  /* code next to a figure: give the code more room and wrap the few long lines */
+  .viz.cols { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+  .viz.cols pre.code { white-space: pre-wrap; }
+  .mpl.small { max-width: 14rem; }
+.out.tex .katex-display { margin: 0; text-align: left; }
+.out.tex .katex-display > .katex { text-align: left; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a class="home" href="index.html" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg></a>
+  <span class="sep"></span>
+  <select id="nav" aria-label="Go to section"></select>
+  <span class="sep"></span>
+  <button id="fs-minus" type="button" title="Smaller text">A−</button><span class="fs" id="fs-size">19px</span><button id="fs-plus" type="button" title="Larger text">A+</button>
+  <span class="sep"></span>
+  <button id="theme" type="button">theme: auto</button>
+</div>
+<main>
+<header class="doc">
+  <div class="caption">CCPP-I · Class 03</div>
+  <h1>Plotting, SciPy, ASE</h1>
+  <p class="keys"><kbd>J</kbd>/<kbd>K</kbd> or <kbd>→</kbd>/<kbd>←</kbd> jump between sections</p>
+</header>
+
+<!-- ============================================================ -->
+<section class="step" id="argparse" data-nav="argparse">
+  <h2><code>argparse</code>: arguments with names, help and types</h2>
+  <p class="lead">You read it at home; questions only. Edit the command and press Enter. Hover a line of the help.</p>
+  <pre class="code" id="ap-code"></pre>
+  <div class="controls" id="ap-presets"></div>
+  <div class="term"><span class="prompt">$ </span><input id="ap-cmd" spellcheck="false" aria-label="command" style="width: 90%"><pre id="ap-out"></pre></div>
+  <p class="muted">An error prints the usage line and exits with code 2, with no Python traceback.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="first-plot" data-nav="A first plot">
+  <h2>A first plot</h2>
+  <div class="viz cols">
+    <div>
+      <div class="term"><span class="prompt">$ </span>conda activate pytccm<br><span class="prompt">$ </span>conda install -c conda-forge matplotlib</div>
+<pre class="code" data-src>
+import numpy as np
+import matplotlib.pyplot as plt
+
+r = np.linspace(0.3, 3, 100)
+energy = 109 * (1 - np.exp(-1.94 * (r - 0.74)))**2   # Morse potential of H2, kcal/mol
+
+plt.plot(r, energy)
+plt.show()
+</pre>
+    </div>
+    <div id="fp-plain"></div>
+  </div>
+  <h3>Every call adds one thing to the figure. Click a line to switch it off.</h3>
+  <div class="viz cols">
+    <div class="ops" id="fp-lines"></div>
+    <div id="fp-fig"></div>
+  </div>
+  <p class="muted"><code>plt.show()</code> ends the figure: the next <code>plt.plot</code> starts a new one. Text between <code>$…$</code> is maths: <code>H$_2$</code>, <code>$\AA$</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="fmt" data-nav="Markers and line styles">
+  <h2>Markers, line styles and colours</h2>
+  <p class="lead">Keyword arguments of <code>plt.plot</code> set the marker, the line style, the colour and the line width.</p>
+  <div class="controls" id="fmt-ctl"></div>
+  <div class="viz cols">
+    <pre class="code" id="fmt-code"></pre>
+    <div id="fmt-fig"></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="pause" id="ex-lines" data-nav="Plotting exercise 1">
+  <div class="phead"><span class="mark">⏸</span><h2>Plotting exercise 1: Two lines</h2></div>
+  <div class="ex">
+    <p>Reproduce the figure.</p>
+    <div id="lines-fig"></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="scatter" data-nav="Scatter plots">
+  <h2>Scatter plots: <code>s</code> is the size, <code>c</code> the colour</h2>
+  <p class="lead"><code>c</code> takes one colour, or one colour per point.</p>
+  <div class="controls" id="sc-ctl"></div>
+  <div class="viz cols">
+    <pre class="code" id="sc-code"></pre>
+    <div id="sc-fig"></div>
+  </div>
+  <p class="muted">Points are drawn above lines by default; <code>zorder=0</code> sends the line further back.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="figures" data-nav="Size, saving, panels">
+  <h2>Figure size, saving, several panels</h2>
+  <p class="lead"><code>figsize</code> is in inches; <code>dpi</code> is pixels per inch of the saved file.</p>
+  <div class="controls" id="fs-ctl"></div>
+  <div class="viz cols">
+    <pre class="code" id="fs-code"></pre>
+    <div id="fs-box"></div>
+  </div>
+  <h3><code>plt.subplots</code> returns the figure and an array of axes</h3>
+  <div class="controls" id="sp-ctl"></div>
+  <div class="viz cols">
+    <div><pre class="code" id="sp-code"></pre><div class="result" id="sp-info"></div></div>
+    <div id="sp-grid"></div>
+  </div>
+<pre class="code" data-src>
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3))
+ax1.plot(r, energy)
+ax1.set_title('Morse')
+ax2.plot(r, 0.5 * 2 * 109 * 1.94**2 * (r - 0.74)**2)
+ax2.set_title('Harmonic')
+ax2.set_ylim(0, 300)
+plt.show()
+</pre>
+  <div class="controls"><label><input type="checkbox" id="sp-ylim" checked> <code>ax2.set_ylim(0, 300)</code></label></div>
+  <div id="sp-fig"></div>
+  <p class="muted">With axes, <code>plt.title</code> becomes <code>ax.set_title</code>, <code>plt.ylim</code> becomes <code>ax.set_ylim</code>.</p>
+</section>
+
+<section class="pause" id="ex12" data-nav="Plotting exercises 2–4">
+  <div class="phead"><span class="mark">⏸</span><h2>Plotting exercises 2–4: Morse potential</h2></div>
+  <div class="ex">
+    <h3>2. Morse vs harmonic</h3>
+    <p>Plot the Morse potential of H<sub>2</sub>, <i>E</i>(<i>r</i>) = <i>D</i>(1 − e<sup>−<i>a</i>(<i>r</i> − <i>r</i><sub>0</sub>)</sup>)<sup>2</sup>, with <i>D</i> = 109 kcal/mol, <i>a</i> = 1.94 Å<sup>−1</sup>, <i>r</i><sub>0</sub> = 0.74 Å, for <i>r</i> from 0.3 to 3 Å (<code>np.linspace</code>). On the same axes plot the harmonic approximation ½<i>k</i>(<i>r</i> − <i>r</i><sub>0</sub>)<sup>2</sup> with <i>k</i> = 2<i>Da</i><sup>2</sup>. Add axis labels with units, a title and a legend. Limit the y axis to 0–300 kcal/mol with <code>plt.ylim</code>. Line width 3: <code>lw</code>.</p>
+    <div id="ex1-fig"></div>
+  </div>
+  <div class="ex">
+    <h3>3. A noisy scan</h3>
+    <p>Simulate a noisy "experimental" scan: 1000 points with <i>r</i> from 0.5 to 2.5 Å, energies from a normal distribution with mean <i>E</i>(<i>r</i>) and σ = 3 kcal/mol (<code>np.random.randn</code>). Show the points as a scatter plot with <code>s=0.5</code> and the exact curve as a line on top. Greek letters: <code>'$\sigma$'</code>.</p>
+    <div id="ex2-fig"></div>
+  </div>
+  <div class="ex">
+    <h3>4. Two subplots</h3>
+    <p>Combine the plots of Exercises 2 and 3 into a single figure with two subplots.</p>
+    <div class="figs" id="ex4sp-fig"></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="molecule" data-nav="Drawing a molecule">
+  <h2>Drawing a molecule</h2>
+  <p class="lead">Parse the xyz file as in Class 02; a dictionary turns each element into a colour. Hover an atom.</p>
+<pre class="code" data-src>
+COLORS = {'H': 'grey', 'C': 'lime', 'N': 'blue', 'O': 'red', 'Fe': 'brown'}
+
+def parse_file(filename):
+    raw = np.loadtxt(filename, skiprows=2, dtype=str)
+    return raw[:, 0], raw[:, 1:].astype(float)
+
+elements, coordinates = parse_file('pyridine.xyz')
+colors = [COLORS[element] for element in elements]
+plt.scatter(coordinates[:, 1], coordinates[:, 2], c=colors)
+plt.gca().set_aspect('equal')
+plt.show()
+</pre>
+  <div class="viz cols">
+    <div id="mol-lists"></div>
+    <div id="mol-fig"></div>
+  </div>
+  <p class="muted"><code>set_aspect('equal')</code>: one Å is as long on y as on z, so the ring stays a hexagon.</p>
+</section>
+
+<section class="pause" id="ex34" data-nav="Plotting exercises 5–6">
+  <div class="phead"><span class="mark">⏸</span><h2>Plotting exercises 5–6: Bonds</h2></div>
+  <div class="ex">
+    <h3>5. Bonds</h3>
+    <p>Draw the pyridine atoms again and add the bonds: black lines between bonded atoms. Loop over pairs of atoms with two nested <code>for</code> loops over <code>coordinates</code>; two atoms are bonded if their distance is below 1.6 Å.</p>
+    <div id="ex3-fig"></div>
+  </div>
+  <div class="ex">
+    <h3>6. <code>plot_molecule</code></h3>
+    <p>Rewrite the code of Exercise 5 as a function:</p>
+<pre class="code" data-src>
+def plot_molecule(filename, x_axis=0, y_axis=1):
+    ...
+</pre>
+    <p><code>plot_molecule('pyridine.xyz', x_axis=1, y_axis=2)</code> must give the same picture. Then call it for <code>heme.xyz</code>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="grids" data-nav="Two variables">
+  <h2>Functions of two variables</h2>
+  <p class="lead"><code>contourf</code> needs <i>x</i>, <i>y</i> and <i>z</i> as 2-D grids. <code>meshgrid</code> builds them from two vectors. Hover a cell.</p>
+<pre class="code" data-src>
+x = np.linspace(-3, 3, 100)
+y = np.linspace(-3, 3, 100)
+xx, yy = np.meshgrid(x, y)
+zz = np.exp(-(xx**2 + yy**2)) * np.cos(2 * xx)
+xx.shape
+</pre>
+  <div class="out">(100, 100)</div>
+  <div class="controls"><label>points shown <input type="range" id="mg-n" min="2" max="6" value="4"> <output id="mg-no"></output></label></div>
+  <div class="blocks" id="mg-grids"></div>
+  <div class="result" id="mg-info"></div>
+  <h3>Filled contours: one colour per band between levels</h3>
+  <div class="controls" id="cf-ctl"></div>
+  <div class="viz cols">
+    <pre class="code" id="cf-code"></pre>
+    <div id="cf-fig"></div>
+  </div>
+  <h3><code>imshow</code>: the matrix as an image</h3>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+plt.imshow(zz, extent=(-3, 3, -3, 3), origin='lower', cmap='coolwarm')
+plt.colorbar()
+plt.show()
+</pre>
+      <div class="controls" id="im-ctl"></div>
+      <pre class="code" id="im-code"></pre>
+      <div id="im-small"></div>
+    </div>
+    <div id="im-fig"></div>
+  </div>
+  <p class="muted"><code>origin='upper'</code> (the default) puts row 0 at the top, as a matrix is printed; <code>'lower'</code> puts it at the bottom, as <code>contourf</code> does.</p>
+  <h3>Colour images: three numbers per pixel</h3>
+<pre class="code" data-src>
+# CPK colours: H, C, N in the first row; O, S, Cl in the second
+cpk = np.array([[[1.0, 1.0, 1.0], [0.56, 0.56, 0.56], [0.19, 0.31, 0.97]],
+                [[1.0, 0.05, 0.05], [1.0, 1.0, 0.19], [0.12, 0.94, 0.12]]])
+cpk.shape
+</pre>
+  <div class="out">(2, 3, 3)</div>
+  <div class="viz cols">
+    <div>
+      <div class="controls" id="rgb-ctl"></div>
+      <pre class="code" id="rgb-code"></pre>
+      <div class="result" id="rgb-info"></div>
+    </div>
+    <div id="rgb-fig"></div>
+  </div>
+  <p class="muted">Shape <code>(rows, cols, 3)</code>: red, green and blue from 0 to 1, no colormap. One channel is a plain matrix, drawn with a colormap scaled from its min to its max.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="pause" id="ex5" data-nav="Plotting exercise 7">
+  <div class="phead"><span class="mark">⏸</span><h2>Plotting exercise 7: A picture stored as text</h2></div>
+  <div class="ex">
+    <p><code>imshow.dat</code> stores a 300 × 300 px picture: one pixel per line with its red, green and blue values from 0 to 255, row by row from the top left. Read it with <code>np.loadtxt</code> and show the picture with <code>imshow</code>. Compare the shape <code>loadtxt</code> returns with the shape <code>imshow</code> needs. Note: <code>imshow</code> expects colour values from 0 to 1, so you'll have to scale them.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="quad" data-nav="Integration">
+  <h2>Numerical integration: <code>scipy.integrate.quad</code></h2>
+  <p class="lead">Returns the value and an error estimate. Extra arguments of the function go in <code>args</code>; <code>np.inf</code> is allowed.</p>
+  <div class="viz cols">
+    <div>
+      <div class="term"><span class="prompt">$ </span>conda install -c conda-forge scipy</div>
+<pre class="code" data-src>
+from scipy.integrate import quad
+
+def gaussian(x, mu, sigma):
+    return np.exp(-(x - mu)**2 / (2 * sigma**2)) / np.sqrt(2 * np.pi * sigma**2)
+
+value, error = quad(gaussian, -np.inf, np.inf, args=(0, 1))
+value, error
+</pre>
+      <div class="out">(0.9999999999999998, 1.0178191320905743e-08)</div>
+<pre class="code" data-src>
+quad(gaussian, 0, np.inf, args=(0, 1))[0]   # half of it
+</pre>
+      <div class="out">0.4999999999999999</div>
+    </div>
+    <div>
+      <div class="controls" id="q-ctl"></div>
+      <pre class="code" id="q-code"></pre>
+      <div id="q-fig"></div>
+      <div class="result" id="q-val"></div>
+    </div>
+  </div>
+  <p class="muted"><code>args=(mu, sigma)</code> fills the parameters after <code>x</code>, in order. The area is the integral.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="interp" data-nav="Interpolation">
+  <h2>Interpolation: <code>scipy.interpolate.interp1d</code></h2>
+  <p class="lead">Builds a function from data points: straight lines (<code>'linear'</code>) or cubic polynomials joined smoothly (<code>'cubic'</code>).</p>
+<pre class="code" data-src>
+from scipy.interpolate import interp1d
+
+x_data = np.linspace(0, 10, 8)
+y_data = np.sin(x_data)
+f_linear = interp1d(x_data, y_data)
+f_cubic = interp1d(x_data, y_data, kind='cubic')
+
+x = np.linspace(0, 10, 200)
+plt.scatter(x_data, y_data, color='black', label='data', zorder=3)
+plt.plot(x, f_linear(x), label='linear')
+plt.plot(x, f_cubic(x), label='cubic')
+plt.plot(x, np.sin(x), ':', label='sin')
+plt.legend()
+plt.show()
+</pre>
+  <div class="controls" id="ip-ctl"></div>
+  <div class="viz cols">
+    <div>
+      <pre class="code" id="ip-call"></pre>
+      <div class="out" id="ip-out"></div>
+    </div>
+    <div id="ip-fig"></div>
+  </div>
+  <p class="muted">Interpolation does not extrapolate: outside <code>x_data</code> it raises <code>ValueError</code>.</p>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="minimize" data-nav="Optimization">
+  <h2>Optimization: <code>scipy.optimize.minimize</code></h2>
+  <p class="lead">Finds a minimum of a function, starting from a guess <code>x0</code>. Pick a start.</p>
+  <div class="viz cols">
+    <div>
+<pre class="code" id="mn-code"></pre>
+      <div class="out" id="mn-out"></div>
+      <div class="controls" id="mn-ctl"></div>
+      <div class="result" id="mn-path"></div>
+    </div>
+    <div id="mn-fig"></div>
+  </div>
+  <p class="muted"><code>curve_fit</code> from the same module fits parameters to data: you will look it up for the course project.</p>
+</section>
+
+<section class="pause" id="sx12" data-nav="SciPy exercises 1–2">
+  <div class="phead"><span class="mark">⏸</span><h2>SciPy exercises 1–2: Integrals and splines</h2></div>
+  <div class="ex">
+    <h3>1. The hydrogen 1s orbital</h3>
+    <p>The radial probability density of the hydrogen 1s orbital (atomic units) is <i>P</i>(<i>r</i>) = 4<i>r</i><sup>2</sup>e<sup>−2<i>r</i></sup>. Check with <code>quad</code> that it is normalized, ∫<sub>0</sub><sup>∞</sup> <i>P</i>(<i>r</i>) d<i>r</i> = 1, and calculate the mean distance of the electron from the nucleus, ⟨<i>r</i>⟩ = ∫<sub>0</sub><sup>∞</sup> <i>r P</i>(<i>r</i>) d<i>r</i>, in bohr.</p>
+<pre class="out">0.9999999999999999 1.5</pre>
+  </div>
+  <div class="ex">
+    <h3>2. A spline through a scan</h3>
+    <p>A scan of H<sub>2</sub> gave the energy at only 6 points:</p>
+<pre class="code" data-src>
+r_data = np.array([0.5, 0.9, 1.3, 1.7, 2.1, 2.5])   # Angstrom
+</pre>
+    <p>Generate the energies with the Morse potential <i>E</i>(<i>r</i>) = <i>D</i>(1 − e<sup>−<i>a</i>(<i>r</i> − <i>r</i><sub>0</sub>)</sup>)<sup>2</sup>, with <i>D</i> = 109 kcal/mol, <i>a</i> = 1.94 Å<sup>−1</sup>, <i>r</i><sub>0</sub> = 0.74 Å.</p>
+    <p>Interpolate them with <code>interp1d(..., kind='cubic')</code>. Plot the exact curve, the spline and the data points on a fine grid from 0.5 to 2.5 Å.</p>
+    <div id="sx1-fig"></div>
+    <p>Then plot the error, spline − Morse. How large is it at the data points? Where is it largest, and why?</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="sympy" data-nav="SymPy">
+  <h2>Symbolic maths: SymPy</h2>
+  <p class="lead">Symbols instead of numbers: exact derivatives and integrals. <code>evalf()</code> turns a result into a number.</p>
+  <div class="term"><span class="prompt">$ </span>conda install -c conda-forge sympy</div>
+  <h3>Symbols and expressions</h3>
+<pre class="code" data-src>
+import sympy
+
+x = sympy.symbols('x')
+expr = x**2 + 2 * x
+expr
+</pre>
+  <div class="out tex" data-tex="x^{2} + 2 x">x**2 + 2*x</div>
+<pre class="code" data-src>
+sympy.expand((x + 1)**3)
+</pre>
+  <div class="out tex" data-tex="x^{3} + 3 x^{2} + 3 x + 1">x**3 + 3*x**2 + 3*x + 1</div>
+  <h3>Derivatives and integrals</h3>
+<pre class="code" data-src>
+f = sympy.sin(x) * sympy.cos(x)
+sympy.diff(f, x)
+</pre>
+  <div class="out tex" data-tex="- \sin^{2}{\left(x \right)} + \cos^{2}{\left(x \right)}">-sin(x)**2 + cos(x)**2</div>
+<pre class="code" data-src>
+sympy.integrate(f, (x, 0, sympy.pi / 2))
+</pre>
+  <div class="out tex" data-tex="\frac{1}{2}">1/2</div>
+<pre class="code" data-src>
+r = sympy.symbols('r', positive=True)
+sympy.integrate(sympy.exp(-r), (r, 0, sympy.oo))
+</pre>
+  <div class="out tex" data-tex="1">1</div>
+  <h3>Exact result, then a number</h3>
+<pre class="code" data-src>
+result = sympy.integrate(x * sympy.cos(x)**2, (x, 0, 2 * sympy.pi))
+result
+</pre>
+  <div class="viz cols">
+    <div>
+      <div class="out tex" data-tex="\pi^{2}">pi**2</div>
+<pre class="code" data-src>
+result.evalf()
+</pre>
+      <div class="out tex" data-tex="9.86960440108936">9.86960440108936</div>
+<pre class="code" data-src>
+float(result)
+</pre>
+      <div class="out">9.869604401089358</div>
+      <p class="muted">The shaded area under <i>x</i> cos<sup>2</sup><i>x</i> is exactly π<sup>2</sup>.</p>
+    </div>
+    <div id="sy-fig"></div>
+  </div>
+  <h3>NumPy functions need numbers</h3>
+<pre class="code" data-src>
+np.cos(x)
+</pre>
+  <div class="out"><span class="err">TypeError: loop of ufunc does not support argument 0 of type Symbol which has no callable cos method</span></div>
+  <p class="muted">Use <code>sympy.cos</code> on symbols.</p>
+</section>
+
+<section class="pause" id="sx34" data-nav="SciPy exercises 3–4">
+  <div class="phead"><span class="mark">⏸</span><h2>SciPy exercises 3–4: Exact and numerical integrals</h2></div>
+  <div class="ex">
+    <h3>3. The 1s integrals in SymPy</h3>
+    <p>Calculate the two integrals of SciPy exercise 1 with SymPy (infinity is <code>sympy.oo</code>). Do you get exact numbers?</p>
+<pre class="out">(1, 3/2)</pre>
+  </div>
+  <div class="ex">
+    <h3>4. Where <code>quad</code> gives up</h3>
+    <p>Calculate ∫<sub>−π</sub><sup>π</sup> cos(1/<i>x</i>) d<i>x</i> with SymPy; <code>evalf</code> gives the number. Then try <code>quad</code>. Does it work? Plot the function near <i>x</i> = 0 to see why.</p>
+<pre class="out">6.60060113048701
+<span class="err">ZeroDivisionError: float division by zero</span></pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="ase" data-nav="ASE">
+  <h2>ASE: a molecule as an object</h2>
+  <p class="lead"><code>ase.io.read</code> returns an <code>Atoms</code> object: symbols, positions and geometry methods. The course project builds on it.</p>
+  <div class="viz cols">
+    <div>
+      <div class="term"><span class="prompt">$ </span>conda install -c conda-forge ase</div>
+<pre class="code" data-src>
+import ase.io
+
+heme = ase.io.read('heme.xyz')
+heme
+</pre>
+      <div class="out">Atoms(symbols='C34H30FeN4O4', pbc=False)</div>
+<pre class="code" data-src>
+len(heme), heme.get_chemical_symbols()[:5], heme.positions[:2]
+</pre>
+      <div class="out">(73,
+ ['C', 'C', 'C', 'C', 'C'],
+ array([[17.333,  2.416,  6.037],
+        [21.724,  0.93 ,  4.802]]))</div>
+      <h3>Click a method</h3>
+      <div class="ops" id="ase-ops"></div>
+      <div class="out" id="ase-out"></div>
+    </div>
+    <div>
+      <div class="mol3d" id="ase-view"></div>
+      <p class="muted">Drag to rotate. Hover an atom for its index.</p>
+    </div>
+  </div>
+</section>
+<!-- ============================================================ -->
+<section class="pause" id="hw2" data-nav="Homework 2">
+  <div class="phead"><span class="mark">⏸</span><h2>Homework 2</h2><span class="muted">by Slack, end of Sat 24 Oct</span></div>
+  <div class="ex">
+    <h3>1. <code>xyz_analyser.py</code></h3>
+    <p>Extend <code>count_atoms.py</code>: geometric center (<code>np.mean</code>) and center of mass (masses vector <code>@</code> coordinates). Use <code>argparse</code> instead of <code>sys.argv</code>: a positional <code>input</code> and a required <code style="white-space:nowrap">--mode</code>, either <code>geometric</code> or <code>mass</code>. Split the program into functions.</p>
+    <div class="term"><span class="prompt">$ </span>python xyz_analyser.py heme.xyz --mode geometric</div>
+<pre class="out">C  34
+O  4
+N  4
+Fe 1
+H  30
+Geometric center: 18.243  0.393  4.571</pre>
+    <div class="term"><span class="prompt">$ </span>python xyz_analyser.py heme.xyz --mode mass</div>
+<pre class="out">…
+Center of mass: 18.005  0.614  4.804</pre>
+    <div class="term"><span class="prompt">$ </span>python xyz_analyser.py heme.xyz</div>
+<pre class="out">usage: xyz_analyser.py [-h] --mode {geometric,mass} input
+<span class="err">xyz_analyser.py: error: the following arguments are required: --mode</span></pre>
+  </div>
+  <div class="ex">
+    <h3>2. <code>surface_plotter.py</code></h3>
+    <p>Complete the template: <code>argparse</code> arguments, read <code>surface.dat</code> (x, y, z in the first three columns), check the number of lines, <code>reshape</code> x, y and z to <code>(xpoints, ypoints)</code> — no <code>meshgrid</code> — and save the figure.</p>
+    <div class="term"><span class="prompt">$ </span>python surface_plotter.py surface.dat output.png --xpoints 72 --ypoints 72 --zmax=20 --levels 41 --mode rainbow</div>
+    <img class="mpl" src="hw2_output.png" alt="contourf plot of surface.dat with the rainbow colormap">
+    <div class="term"><span class="prompt">$ </span>python surface_plotter.py surface.dat output.png --xpoints 72 --ypoints 40 --zmax=20 --levels 41 --mode rainbow</div>
+<pre class="out"><span class="err">Wrong number of points!</span></pre>
+  </div>
+</section>
+</main>
+
+<script>
+Course.init = function () {
+  const C = Course, $ = C.$, el = C.el, esc = C.esc;
+  const NS = 'http://www.w3.org/2000/svg';
+  const S = (tag, a, txt) => { const e = document.createElementNS(NS, tag); for (const k in a || {}) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  const linspace = (a, b, n) => Array.from({ length: n }, (_, i) => n === 1 ? a : a + (b - a) * i / (n - 1));
+  const morse = r => 109 * (1 - Math.exp(-1.94 * (r - 0.74))) ** 2;
+  const harm = r => 0.5 * 2 * 109 * 1.94 ** 2 * (r - 0.74) ** 2;
+  const MPL = { red: '#ff0000', blue: '#0000ff', green: '#008000', grey: '#808080', black: '#000000', lime: '#00ff00', brown: '#a52a2a', k: '#000000', r: '#ff0000', g: '#008000', b: '#0000ff' };
+  const CYC = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728'];
+  const col = c => MPL[c] || c;
+  function randn(seed) {   // reproducible normal numbers, so a figure does not change on every redraw
+    let s = seed >>> 0;
+    const u = () => { s = (s * 1664525 + 1013904223) >>> 0; return (s + 0.5) / 4294967296; };
+    return () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u());
+  }
+  function codeInto(pre, code) { C.codeBlock(pre, code, false); }
+  function seg(host, label, values, cur, onpick, show) {
+    const wrap = el('label'); wrap.append(document.createTextNode(label + ' '));
+    const sg = el('span', 'seg code');
+    values.forEach(v => {
+      const b = el('button', v === cur ? 'on' : '', esc(show ? show(v) : v)); b.type = 'button';
+      b.onclick = () => { sg.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); onpick(v); };
+      sg.append(b);
+    });
+    wrap.append(sg); host.append(wrap);
+  }
+  function slider(host, label, min, max, step, val, oninput, show) {
+    const l = el('label'); l.append(document.createTextNode(label + ' '));
+    const i = el('input'); Object.assign(i, { type: 'range', min, max, step, value: val });
+    const o = el('output'); o.textContent = show ? show(val) : val; l.append(i, o); host.append(l);
+    const f = () => { o.textContent = show ? show(+i.value) : i.value; oninput(+i.value); };
+    i.addEventListener('input', f);
+    return { input: i, fire: f };
+  }
+
+  /* ---------- matplotlib-like figures in SVG ---------- */
+  const STEPS = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  function nice(a, b, n, steps) {   // like matplotlib's MaxNLocator: at most n intervals, step 1/2/2.5/5 × 10^k
+    const raw = (b - a) / n, p = 10 ** Math.floor(Math.log10(raw));
+    const st = (steps || [1, 2, 2.5, 5, 10]).map(s => s * p).find(s => s >= raw * (1 - 1e-9));
+    const t = [];
+    for (let k = Math.ceil(a / st - 1e-9); k * st <= b + st * 1e-9; k++) t.push(k * st);
+    return { t, st };
+  }
+  const decimals = st => (String(+st.toPrecision(3)).split('.')[1] || '').length;
+  const tickLab = (v, st) => { let s = v.toFixed(decimals(st)); if (/^-0(\.0*)?$/.test(s)) s = s.slice(1); return s.replace('-', '−'); };
+  function mtext(t, s) {   // matplotlib mathtext subset: $..$, subscripts, \AA, Greek
+    let shift = 0;
+    const add = (txt, dy, cls) => { const a = {}; if (dy) a.dy = dy; if (cls) a.class = cls; t.append(S('tspan', a, txt)); };
+    String(s).split('$').forEach((p, i) => {
+      if (i % 2 === 0) { if (p) { add(p, -shift); shift = 0; } return; }
+      p = p.replace(/\\AA/g, 'Å').replace(/\\sigma/g, 'σ').replace(/\\mu/g, 'μ').replace(/\\pi/g, 'π');
+      const re = /_\{([^}]*)\}|_(.)/g; let last = 0, m;
+      const plain = txt => { add(txt, -shift, /^[a-zA-Z]+$/.test(txt) ? 'mi' : ''); shift = 0; };
+      while ((m = re.exec(p))) { if (m.index > last) plain(p.slice(last, m.index)); add(m[1] || m[2], 3 - shift, 'sub'); shift = 3; last = m.index + m[0].length; }
+      if (last < p.length) plain(p.slice(last));
+    });
+  }
+  function autolim(arrs, margin) {
+    let lo = Infinity, hi = -Infinity;
+    arrs.forEach(a => a.forEach(v => { if (isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }));
+    const m = (hi - lo) * (margin == null ? 0.05 : margin) || 0.5;
+    return [lo - m, hi + m];
+  }
+  const DASH = { '--': [3.7, 1.6], '-.': [6.4, 1.6, 1, 1.6], ':': [1, 1.65] };
+  function markerEl(m, x, y, r, c) {
+    if (m === 's') return S('rect', { x: x - r, y: y - r, width: r * 2, height: r * 2, fill: c });
+    if (m === '^') return S('path', { d: `M${x},${y - r * 1.2}L${x + r * 1.08},${y + r * .94}L${x - r * 1.08},${y + r * .94}Z`, fill: c });
+    return S('circle', { cx: x, cy: y, r: m === '.' ? r * .56 : r, fill: c });
+  }
+  let clipN = 0;
+  function fig(o) {
+    const W = o.w || 460, H = o.h || 300;
+    const L = o.ml || 52, R = o.cbar ? 70 : 14, T = o.title ? 26 : 10, B = o.xlabel ? 40 : 26;
+    const ser = o.series || [];
+    let [x0, x1] = o.xlim || autolim(ser.map(s => s.x)), [y0, y1] = o.ylim || autolim(ser.map(s => s.y));
+    const pw = W - L - R, ph = H - T - B;
+    if (o.equal) {
+      const sx = pw / (x1 - x0), sy = ph / (y1 - y0);
+      if (sx > sy) { const c = (x0 + x1) / 2, h = pw / sy / 2; x0 = c - h; x1 = c + h; } else { const c = (y0 + y1) / 2, h = ph / sx / 2; y0 = c - h; y1 = c + h; }
+    }
+    const X = v => L + (v - x0) / (x1 - x0) * pw, Y = v => T + ph - (v - y0) / (y1 - y0) * ph;
+    const svg = S('svg', { viewBox: `0 0 ${W} ${H}`, class: 'mpl' + (o.cls ? ' ' + o.cls : '') });
+    const id = 'clip' + (++clipN);
+    const defs = S('defs'), cp = S('clipPath', { id }); cp.append(S('rect', { x: L, y: T, width: pw, height: ph })); defs.append(cp); svg.append(defs);
+    const g = S('g', { 'clip-path': `url(#${id})` }); svg.append(g);
+    const f = { svg, g, X, Y, L, T, pw, ph, W, H, x0, x1, y0, y1 };
+    if (o.image) o.image(f);
+    const zo = s => s.z != null ? s.z : s.type === 'scatter' || s.type === 'fill' ? 1 : 2;
+    ser.map((s, k) => [s, k]).sort((a, b) => zo(a[0]) - zo(b[0]) || a[1] - b[1]).forEach(([s]) => {
+      const c = col(s.color || CYC[s.ci || 0]);
+      if (s.type === 'fill') {
+        let d = `M${X(s.x[0])},${Y(0)}`; s.x.forEach((x, i) => d += `L${X(x).toFixed(1)},${Y(s.y[i]).toFixed(1)}`);
+        g.append(S('path', { d: d + `L${X(s.x[s.x.length - 1])},${Y(0)}Z`, fill: c, 'fill-opacity': s.alpha || .3 }));
+      } else if (s.type === 'scatter') {
+        const r = Math.sqrt(s.s == null ? 36 : s.s) / 2 * 1.1;
+        s.x.forEach((x, i) => { const e = markerEl('o', X(x), Y(s.y[i]), r, Array.isArray(s.c) ? col(s.c[i % s.c.length]) : col(s.c || c)); if (s.tag) s.tag(e, i); g.append(e); });
+      } else {
+        const lw = (s.lw || 1.5) * 1.1, ls = s.ls === undefined ? '-' : s.ls;
+        if (ls) {
+          const a = { points: s.x.map((x, i) => X(x).toFixed(1) + ',' + Y(s.y[i]).toFixed(1)).join(' '), fill: 'none', stroke: c, 'stroke-width': lw, 'stroke-linejoin': 'round' };
+          if (DASH[ls]) a['stroke-dasharray'] = DASH[ls].map(v => v * lw).join(' ');
+          g.append(S('polyline', a));
+        }
+        if (s.marker) s.x.forEach((x, i) => g.append(markerEl(s.marker, X(x), Y(s.y[i]), 3.85, c)));
+      }
+    });
+    svg.append(S('rect', { x: L, y: T, width: pw, height: ph, class: 'ax' }));
+    const ylo = Math.min(y0, y1), yhi = Math.max(y0, y1);
+    const xt = nice(x0, x1, o.xn || 7), yt = nice(ylo, yhi, o.yn || 7);
+    xt.t.forEach(v => { if (v < x0 || v > x1) return; const x = X(v); svg.append(S('line', { x1: x, x2: x, y1: T + ph, y2: T + ph + 3.5, class: 'tk' })); svg.append(S('text', { x, y: T + ph + 14, 'text-anchor': 'middle' }, tickLab(v, xt.st))); });
+    yt.t.forEach(v => { if (v < ylo || v > yhi) return; const y = Y(v); svg.append(S('line', { x1: L - 3.5, x2: L, y1: y, y2: y, class: 'tk' })); svg.append(S('text', { x: L - 6, y: y + 3.8, 'text-anchor': 'end' }, tickLab(v, yt.st))); });
+    if (o.xlabel) { const t = S('text', { x: L + pw / 2, y: H - 8, 'text-anchor': 'middle' }); mtext(t, o.xlabel); svg.append(t); }
+    if (o.ylabel) { const t = S('text', { x: 12, y: T + ph / 2, 'text-anchor': 'middle', transform: `rotate(-90 12 ${T + ph / 2})` }); mtext(t, o.ylabel); svg.append(t); }
+    if (o.title) { const t = S('text', { x: L + pw / 2, y: T - 8, 'text-anchor': 'middle', class: 'ttl' }); mtext(t, o.title); svg.append(t); }
+    if (o.legend) {
+      const items = ser.filter(s => s.label);
+      if (items.length) {
+        const wd = 36 + 6.6 * Math.max(...items.map(s => s.label.replace(/\$|\\[a-zA-Z]+|_/g, '').length + (/\\/.test(s.label) ? 1 : 0)));
+        const ht = 8 + 16 * items.length, lx = o.legend === 'ul' ? L + 8 : L + pw - 8 - wd, ly = o.legend === 'lr' ? T + ph - 8 - ht : T + 8;
+        svg.append(S('rect', { x: lx, y: ly, width: wd, height: ht, rx: 3, class: 'legbox' }));
+        items.forEach((s, k) => {
+          const y = ly + 12 + 16 * k, c = col(s.color || CYC[s.ci || 0]);
+          if (s.type === 'scatter') svg.append(markerEl('o', lx + 16, y, Math.max(2, Math.sqrt(s.s == null ? 36 : s.s) / 2 * 1.1), Array.isArray(s.c) ? col(s.c[0]) : col(s.c || c)));
+          else {
+            const ls = s.ls === undefined ? '-' : s.ls, lw = (s.lw || 1.5) * 1.1;
+            if (ls) { const a = { x1: lx + 6, x2: lx + 26, y1: y, y2: y, stroke: c, 'stroke-width': lw }; if (DASH[ls]) a['stroke-dasharray'] = DASH[ls].map(v => v * lw).join(' '); svg.append(S('line', a)); }
+            if (s.marker) svg.append(markerEl(s.marker, lx + 16, y, 3.85, c));
+          }
+          const t = S('text', { x: lx + 32, y: y + 4 }); mtext(t, s.label); svg.append(t);
+        });
+      }
+    }
+    if (o.cbar) {
+      const cb = o.cbar, bx = L + pw + 14, bw = 12, lv = cb.levels;
+      if (lv) lv.slice(0, -1).forEach((v, k) => { const ya = T + ph - (v - lv[0]) / (lv[lv.length - 1] - lv[0]) * ph, yb = T + ph - (lv[k + 1] - lv[0]) / (lv[lv.length - 1] - lv[0]) * ph; svg.append(S('rect', { x: bx, y: yb, width: bw, height: ya - yb + .5, fill: rgb(cb.cmap(lv.length > 2 ? k / (lv.length - 2) : .5)) })); });
+      else for (let k = 0; k < 64; k++) svg.append(S('rect', { x: bx, y: T + ph - (k + 1) / 64 * ph, width: bw, height: ph / 64 + .5, fill: rgb(cb.cmap(k / 63)) }));
+      svg.append(S('rect', { x: bx, y: T, width: bw, height: ph, class: 'ax' }));
+      const lo = lv ? lv[0] : cb.vmin, hi = lv ? lv[lv.length - 1] : cb.vmax, tt = nice(lo, hi, 7);
+      tt.t.forEach(v => { if (v < lo - 1e-9 || v > hi + 1e-9) return; const y = T + ph - (v - lo) / (hi - lo) * ph; svg.append(S('line', { x1: bx + bw, x2: bx + bw + 3, y1: y, y2: y, class: 'tk' })); svg.append(S('text', { x: bx + bw + 5, y: y + 3.8 }, tickLab(v, tt.st))); });
+    }
+    return f;
+  }
+  function show(host, f) { const h = typeof host === 'string' ? $(host) : host; h.innerHTML = ''; h.append(f.svg); return f; }
+
+  /* colour maps: 9 samples of matplotlib's maps, interpolated */
+  const CMAPS = {
+    viridis: ['#440154', '#472d7b', '#3b528b', '#2c728e', '#21918c', '#28ae80', '#5ec962', '#addc30', '#fde725'],
+    plasma: ['#0d0887', '#4c02a1', '#7e03a8', '#aa2395', '#cc4778', '#e66c5c', '#f89540', '#fdc527', '#f0f921'],
+    coolwarm: ['#3b4cc0', '#6282ea', '#8db0fe', '#b9d0f9', '#dddcdc', '#f5c4ac', '#f4987a', '#dd5f4b', '#b40426'],
+    rainbow: ['#8000ff', '#4062fa', '#00b5eb', '#40ecd4', '#80ffb4', '#c0eb8d', '#ffb360', '#ff5f30', '#ff0000'],
+  };
+  function cmap(name) {
+    const h = CMAPS[name].map(x => [1, 3, 5].map(i => parseInt(x.slice(i, i + 2), 16)));
+    return t => { t = Math.min(1, Math.max(0, t)) * (h.length - 1); const i = Math.min(h.length - 2, Math.floor(t)), u = t - i; return h[i].map((v, k) => Math.round(v + (h[i + 1][k] - v) * u)); };
+  }
+  const rgb = a => `rgb(${a[0]},${a[1]},${a[2]})`;
+  function raster(f, nx, ny, colorAt, smooth) {   // colorAt(i, j) for pixel column i, row j from the top
+    const cv = document.createElement('canvas'); cv.width = nx; cv.height = ny;
+    const ctx = cv.getContext('2d'), im = ctx.createImageData(nx, ny);
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const c = colorAt(i, j), p = 4 * (j * nx + i); im.data[p] = c[0]; im.data[p + 1] = c[1]; im.data[p + 2] = c[2]; im.data[p + 3] = 255; }
+    ctx.putImageData(im, 0, 0);
+    f.g.append(S('image', { href: cv.toDataURL(), x: f.L, y: f.T, width: f.pw, height: f.ph, preserveAspectRatio: 'none', style: smooth ? '' : 'image-rendering: pixelated' }));
+  }
+
+  /* ---------- § argparse ---------- */
+  (function () {
+    const code = "import argparse\n\n# Create an ArgumentParser object\nparser = argparse.ArgumentParser(description='A simple command-line tool.')\n\n# Add positional argument(s)\nparser.add_argument('input_file', help='Input file name')\nparser.add_argument('count', type=int, help='How many lines to read')\n\n# Add optional argument(s)\nparser.add_argument('--output', '-o', help='Output file name')\n\n# Parse the command-line arguments\nargs = parser.parse_args()\n\n# Access the values of the arguments\nprint(args)\nprint(args.input_file, args.count, args.output)";
+    const pre = $('#ap-code'); C.codeBlock(pre, code, true);
+    const lines = [...pre.querySelectorAll('.line')];
+    const USAGE = 'usage: parser.py [-h] [--output OUTPUT] input_file count';
+    // help lines and the code line each one comes from (1-based), 0 = none
+    const HELP = [[USAGE, 0], ['', 0], ['A simple command-line tool.', 4], ['', 0], ['positional arguments:', 0], ['  input_file            Input file name', 7], ['  count                 How many lines to read', 8], ['', 0], ['options:', 0], ['  -h, --help            show this help message and exit', 0], ['  --output OUTPUT, -o OUTPUT', 11], ['                        Output file name', 11]];
+    const out = $('#ap-out'), inp = $('#ap-cmd');
+    function linkHover(span, ln) {
+      if (!ln) return;
+      span.style.cursor = 'help';
+      span.addEventListener('mouseenter', () => { lines[ln - 1].classList.add('cur'); span.style.background = 'rgba(255,224,138,.25)'; });
+      span.addEventListener('mouseleave', () => { lines[ln - 1].classList.remove('cur'); span.style.background = ''; });
+    }
+    const isNum = t => /^-\d/.test(t);
+    function run() {
+      out.innerHTML = '';
+      const toks = inp.value.trim().split(/\s+/).filter(Boolean);
+      if (toks[0] !== 'python' || toks[1] !== 'parser.py') { out.append(el('span', 'exit', 'start with: python parser.py')); return; }
+      const a = toks.slice(2), pos = [], extra = [];
+      let output = null, err = null;
+      for (let i = 0; i < a.length && !err; i++) {
+        const t = a[i];
+        if (t === '-h' || t === '--help') {
+          HELP.forEach(([txt, ln]) => { const s = el('span', '', esc(txt) + '\n'); linkHover(s, ln); out.append(s); });
+          out.append(el('span', 'exit', 'exit code 0')); return;
+        }
+        if (t === '-o' || t === '--output') { if (i + 1 >= a.length || (a[i + 1].startsWith('-') && !isNum(a[i + 1]))) err = 'argument --output/-o: expected one argument'; else output = a[++i]; }
+        else if (t.startsWith('--output=')) output = t.slice(9);
+        else if (t.startsWith('-o') && !isNum(t)) output = t.slice(2);
+        else if (t.startsWith('-') && t.length > 1 && !isNum(t)) extra.push(t);
+        else pos.push(t);
+      }
+      if (!err && pos.length >= 2 && !/^\s*[-+]?\d+\s*$/.test(pos[1])) err = `argument count: invalid int value: '${pos[1]}'`;
+      if (!err && pos.length < 2) err = 'the following arguments are required: ' + ['input_file', 'count'].slice(pos.length).join(', ');
+      if (!err && (extra.length || pos.length > 2)) err = 'unrecognized arguments: ' + [...extra, ...pos.slice(2)].join(' ');
+      if (err) { out.append(el('span', '', esc(USAGE) + '\n')); out.append(el('span', 'err', esc('parser.py: error: ' + err) + '\n')); out.append(el('span', 'exit', 'exit code 2')); return; }
+      const n = parseInt(pos[1], 10), o = output === null ? 'None' : `'${output}'`;
+      const ns = el('span', '', esc(`Namespace(input_file='${pos[0]}', count=${n}, output=${o})`) + '\n'); linkHover(ns, 17);
+      const pl = el('span', '', esc(`${pos[0]} ${n} ${output === null ? 'None' : output}`) + '\n'); linkHover(pl, 18);
+      out.append(ns, pl, el('span', 'exit', 'exit code 0'));
+    }
+    ['python parser.py --help', 'python parser.py heme.xyz 3 -o out.txt', 'python parser.py heme.xyz three', 'python parser.py heme.xyz'].forEach(cmd => {
+      const b = el('button', 'btn', esc(cmd.slice(17))); b.type = 'button'; b.style.fontFamily = 'var(--mono)';
+      b.onclick = () => { inp.value = cmd; run(); };
+      $('#ap-presets').append(b);
+    });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+    inp.value = 'python parser.py heme.xyz 3 -o out.txt'; run();
+  })();
+
+  /* ---------- § first plot ---------- */
+  const R100 = linspace(0.3, 3, 100), E100 = R100.map(morse);
+  show('#fp-plain', fig({ series: [{ x: R100, y: E100 }] }));
+  (function () {
+    const L = [
+      { code: "plt.plot(r, energy, color='red', linestyle='--', linewidth=2, label='Morse')", s: { x: R100, y: E100, color: 'red', ls: '--', lw: 2, label: 'Morse' } },
+      { code: "plt.plot([0.74, 0.74], [0, 120], color='grey', label='$r_0$')", s: { x: [0.74, 0.74], y: [0, 120], color: 'grey', label: '$r_0$' } },
+      { code: "plt.xlabel('r ($\\AA$)')", o: { xlabel: 'r ($\\AA$)' } },
+      { code: "plt.ylabel('E (kcal/mol)')", o: { ylabel: 'E (kcal/mol)' } },
+      { code: "plt.title('H$_2$ dissociation')", o: { title: 'H$_2$ dissociation' } },
+      { code: 'plt.legend()', o: { legend: true } },
+    ];
+    const on = L.map(() => true);
+    const host = $('#fp-lines');
+    L.forEach((l, k) => { const b = el('button', 'on', C.hl(l.code)); b.type = 'button'; b.onclick = () => { on[k] = !on[k]; b.classList.toggle('on', on[k]); b.classList.toggle('off', !on[k]); draw(); }; host.append(b); });
+    const last = el('button', 'done', C.hl('plt.show()')); last.disabled = true; host.append(last);
+    function draw() {
+      const o = { series: [] };
+      L.forEach((l, k) => { if (!on[k]) return; if (l.s) o.series.push(l.s); if (l.o) Object.assign(o, l.o); });
+      if (!o.series.length) o.xlim = [0, 1], o.ylim = [0, 1];
+      show('#fp-fig', fig(o));
+    }
+    draw();
+  })();
+
+  /* ---------- § marker, linestyle, color ---------- */
+  (function () {
+    const x = linspace(0, 2 * Math.PI, 10), st = { m: 'o', l: '--', c: 'green', w: 2 };
+    const ctl = $('#fmt-ctl'), q = v => v ? "'" + v + "'" : '(not given)';
+    seg(ctl, 'marker', ['', 'o', 's', '^', '.'], 'o', v => { st.m = v; draw(); }, q);
+    seg(ctl, 'linestyle', ['', '--', '-.', ':', 'none'], '--', v => { st.l = v; draw(); }, q);
+    seg(ctl, 'color', ['', 'black', 'red', 'green', 'blue'], 'green', v => { st.c = v; draw(); }, q);
+    slider(ctl, 'lw', 0.5, 6, 0.5, 2, v => { st.w = v; draw(); });
+    function draw() {
+      const kw = [['marker', st.m], ['linestyle', st.l], ['color', st.c]].filter(k => k[1]).map(k => k[0] + "='" + k[1] + "'").concat('lw=' + st.w);
+      codeInto($('#fmt-code'), "x = np.linspace(0, 2 * np.pi, 10)\nplt.plot(x, np.sin(x)" + kw.map(k => ', ' + k).join('') + ")\nplt.show()");
+      const ls = st.l === 'none' ? '' : st.l || '-';   // not given: solid line
+      show('#fmt-fig', fig({ series: [{ x, y: x.map(Math.sin), marker: st.m, ls, lw: st.w, color: st.c || CYC[0] }] }));
+    }
+    draw();
+  })();
+
+  /* ---------- § scatter ---------- */
+  (function () {
+    const x = linspace(0, 10, 100), g = randn(7), y = x.map(v => Math.sin(v) + g() * 0.2);
+    const st = { s: 10, c: 'two', z: true }, ctl = $('#sc-ctl');
+    slider(ctl, 's', 1, 100, 1, 10, v => { st.s = v; draw(); });
+    seg(ctl, 'c', ['one', 'two'], 'two', v => { st.c = v; draw(); }, v => v === 'one' ? "'red'" : "['red', 'blue'] * 50");
+    const zl = el('label'); const zc = el('input'); zc.type = 'checkbox'; zc.checked = true; zl.append(zc, document.createTextNode(' zorder=0')); ctl.append(zl);
+    zc.onchange = () => { st.z = zc.checked; draw(); };
+    function draw() {
+      const c = st.c === 'one' ? "'red'" : "['red', 'blue'] * 50";
+      codeInto($('#sc-code'), "x = np.linspace(0, 10, 100)\ny = np.sin(x) + np.random.randn(100) * 0.2\nplt.scatter(x, y, s=" + st.s + ", c=" + c + ")\nplt.plot(x, np.sin(x), color='black'" + (st.z ? ', zorder=0' : '') + ")\nplt.show()");
+      show('#sc-fig', fig({ series: [
+        { type: 'scatter', x, y, s: st.s, c: st.c === 'one' ? 'red' : ['red', 'blue'] },
+        { x, y: x.map(Math.sin), color: 'black', z: st.z ? 0 : 2 },
+      ] }));
+    }
+    draw();
+  })();
+
+  /* ---------- § size, saving, panels ---------- */
+  (function () {
+    const st = { w: 4, h: 3, dpi: 150 }, ctl = $('#fs-ctl');
+    const sw = slider(ctl, 'width', 2, 10, 1, 4, v => { st.w = v; draw(); }, v => v + ' in');
+    const sh = slider(ctl, 'height', 2, 6, 1, 3, v => { st.h = v; draw(); }, v => v + ' in');
+    seg(ctl, 'dpi', [72, 100, 150, 300], 150, v => { st.dpi = v; draw(); });
+    function draw() {
+      codeInto($('#fs-code'), 'plt.figure(figsize=(' + st.w + ', ' + st.h + '))\nplt.plot(r, energy)\nplt.savefig(\'morse.png\', dpi=' + st.dpi + ')\nplt.show()');
+      const host = $('#fs-box'); host.innerHTML = '';
+      const b = el('div', 'inch'); b.style.width = st.w * 2.4 + 'rem'; b.style.height = st.h * 2.4 + 'rem'; b.style.maxWidth = '100%';
+      b.textContent = st.w + ' × ' + st.h + ' in';
+      host.append(b, el('div', 'result', 'morse.png<span class="arrow">→</span>' + st.w * st.dpi + ' × ' + st.h * st.dpi + ' px'));
+    }
+    sw.fire(); sh.fire();
+    const sp = { r: 1, c: 2 }, ctl2 = $('#sp-ctl');
+    const sr = slider(ctl2, 'nrows', 1, 3, 1, 1, v => { sp.r = v; grid(); });
+    const sc = slider(ctl2, 'ncols', 1, 3, 1, 2, v => { sp.c = v; grid(); });
+    function grid() {
+      const { r, c } = sp, n = r * c;
+      const one = n === 1, flat = !one && (r === 1 || c === 1);
+      const names = one ? ['ax'] : flat ? Array.from({ length: n }, (_, k) => 'ax' + (k + 1)) : null;
+      const lhs = one ? 'fig, ax' : flat ? 'fig, (' + names.join(', ') + ')' : 'fig, axes';
+      codeInto($('#sp-code'), lhs + ' = plt.subplots(' + r + ', ' + c + ')');
+      $('#sp-info').innerHTML = one ? 'one Axes object, no array' : flat ? C.hl('axes.shape') + '<span class="arrow">→</span>(' + n + ',)  unpacked into ' + n + ' names' : C.hl('axes.shape') + '<span class="arrow">→</span>(' + r + ', ' + c + ')';
+      const g = el('div', 'axgrid'); g.style.gridTemplateColumns = 'repeat(' + c + ', auto)';
+      for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) {
+        const k = i * c + j;
+        g.append(el('div', 'axcell', esc(one ? 'ax' : flat ? names[k] : 'axes[' + i + ', ' + j + ']')));
+      }
+      const host = $('#sp-grid'); host.innerHTML = ''; host.append(el('div', 'caption', 'fig'), g);
+    }
+    sr.fire(); sc.fire();
+    function panels() {
+      const host = $('#sp-fig'); host.innerHTML = ''; const w = el('div', 'figs'); host.append(w);
+      w.append(fig({ title: 'Morse', series: [{ x: R100, y: E100 }] }).svg);
+      w.append(fig({ title: 'Harmonic', series: [{ x: R100, y: R100.map(harm) }], ylim: $('#sp-ylim').checked ? [0, 300] : null }).svg);
+    }
+    $('#sp-ylim').onchange = panels; panels();
+  })();
+
+  /* exercise 1: expected figure */
+  show('#lines-fig', fig({ title: 'Exercise 1', xlabel: 'x', ylabel: 'y', legend: 'ul', series: [
+    { x: [0, 1, 2], y: [0, 1, 1], color: 'blue', lw: 3, label: 'high' },
+    { x: [0, 1, 2], y: [0, 0, 1], color: 'red', lw: 3, marker: 'o', label: 'low' }] }));
+
+  /* exercises 2-4: expected figures */
+  (function () {
+    const r = linspace(0.3, 3, 200);
+    const f2 = () => fig({ title: 'Exercise 2', xlabel: 'r ($\\AA$)', ylabel: 'E (kcal/mol)', ylim: [0, 300], legend: true, series: [
+      { x: r, y: r.map(morse), color: 'blue', lw: 3, label: 'Morse' }, { x: r, y: r.map(harm), color: 'red', lw: 3, ls: '--', label: 'Harmonic' }] });
+    show('#ex1-fig', f2());
+    const r2 = linspace(0.5, 2.5, 1000), g = randn(11);
+    const y2 = r2.map(v => morse(v) + 3 * g());
+    const f3 = () => fig({ title: 'Exercise 3', xlabel: 'r ($\\AA$)', ylabel: 'E (kcal/mol)', legend: 'ul', series: [
+      { type: 'scatter', x: r2, y: y2, s: 0.5, c: 'black', label: '$\\mu$ = Morse, $\\sigma$ = 3 kcal/mol' },
+      { x: r2, y: r2.map(morse), color: 'blue', lw: 2, label: 'Morse' }] });
+    show('#ex2-fig', f3());
+    $('#ex4sp-fig').append(f2().svg, f3().svg);
+  })();
+
+  /* ---------- § drawing a molecule ---------- */
+  const PYR_E = ['C', 'C', 'C', 'N', 'C', 'C', 'H', 'H', 'H', 'H', 'H'];
+  const PYR = [[-0.180226841, 0.360945118, -1.120304970], [-0.180226841, 1.559292118, -0.407860970], [-0.180226841, 1.503191118, 0.986935030],
+    [-0.180226841, 0.360945118, 1.29018350], [-0.180226841, -0.781300882, 0.986935030], [-0.180226841, -0.837401882, -0.407860970],
+    [-0.180226841, 0.360945118, -2.206546970], [-0.180226841, 2.517950118, -0.917077970], [-0.180226841, 2.421289118, 1.572099030],
+    [-0.180226841, -1.699398882, 1.572099030], [-0.180226841, -1.796059882, -0.917077970]];
+  const COLORS = { H: 'grey', C: 'lime', N: 'blue', O: 'red', Fe: 'brown' };
+  const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  function molFig(E, X, ax, ay, bonds, extra) {
+    const series = [];
+    if (bonds) X.forEach((a, i) => X.slice(i + 1).forEach(b => { if (dist(a, b) < 1.6) series.push({ x: [a[ax], b[ax]], y: [a[ay], b[ay]], color: 'black', lw: 1 }); }));
+    series.push(Object.assign({ type: 'scatter', x: X.map(p => p[ax]), y: X.map(p => p[ay]), c: E.map(e => COLORS[e]) }, extra || {}));
+    return series;
+  }
+  (function () {
+    const cells = [], ccells = [];
+    let atoms = [];
+    const f = fig({ equal: true, series: molFig(PYR_E, PYR, 1, 2, false, { tag: (e, i) => { atoms[i] = e; e.style.cursor = 'pointer'; e.addEventListener('mouseenter', () => pick(i)); } }) });
+    show('#mol-fig', f);
+    const host = $('#mol-lists');
+    const mk = (name, vals, store) => {
+      const b = el('div', 'arr'); b.append(el('span', 'result', C.hl(name)));
+      const row = el('div', 'cells');
+      vals.forEach((v, i) => { const c = el('div', 'cell', esc(v)); c.title = name + '[' + i + ']'; c.addEventListener('mouseenter', () => pick(i)); store.push(c); row.append(c); });
+      b.append(row); host.append(b);
+    };
+    mk('elements', PYR_E, cells);
+    mk('colors', PYR_E.map(e => "'" + COLORS[e] + "'"), ccells);
+    const info = el('div', 'result'); host.append(info);
+    function pick(i) {
+      cells.forEach((c, k) => c.classList.toggle('sel', k === i)); ccells.forEach((c, k) => c.classList.toggle('sel', k === i));
+      atoms.forEach((a, k) => { a.setAttribute('stroke', k === i ? '#e8590c' : 'none'); a.setAttribute('stroke-width', 3); });
+      info.innerHTML = C.hl("COLORS['" + PYR_E[i] + "']") + '<span class="arrow">→</span>' + esc("'" + COLORS[PYR_E[i]] + "'") + '<br>' +
+        C.hl('coordinates[' + i + ', 1], coordinates[' + i + ', 2]') + '<span class="arrow">→</span>(' + PYR[i][1].toFixed(2) + ', ' + PYR[i][2].toFixed(2) + ')';
+    }
+    pick(3);
+  })();
+
+  /* exercise 5: expected figure; heme coordinates are also used by the ASE viewer */
+  const HEME_E = 'C C C C C C C C C C C C O O C C C C C C C C C C C C C C C C C C C C C C O O N N N N Fe H H H H H H H H H H H H H H H H H H H H H H H H H H H H H H'.split(' ');
+  const HEME = [[17.333, 2.416, 6.037], [21.724, 0.93, 4.802], [19.875, -2.836, 2.535], [15.521, -0.712, 2.859], [18.7, 2.163, 6.179], [19.599, 3.215, 6.561], [20.803, 2.934, 6.015], [20.658, 1.675, 5.326], [22.177, 3.564, 6.283], [19.341, 4.267, 7.624], [18.381, 3.953, 8.752], [17.358, 5.043, 9.045], [17.591, 5.777, 10.034], [16.312, 5.186, 8.347], [21.581, -0.435, 4.513], [22.721, -1.211, 4.104], [22.216, -2.239, 3.38], [20.787, -2.033, 3.245], [24.188, -0.941, 4.473], [22.881, -3.362, 2.921], [24.163, -3.821, 2.892], [18.56, -2.436, 2.227], [17.674, -3.175, 1.367], [16.465, -2.586, 1.481], [16.595, -1.496, 2.409], [18.09, -4.384, 0.528], [15.308, -2.804, 0.709], [15.268, -3.109, -0.62], [15.611, 0.19, 3.918], [14.497, 0.957, 4.428], [15.003, 1.851, 5.307], [16.429, 1.638, 5.333], [13.069, 0.802, 3.882], [14.273, 2.971, 6.029], [13.743, 2.599, 7.397], [12.7, 3.538, 7.965], [11.549, 3.122, 8.154], [13.024, 4.717, 8.229], [19.357, 1.212, 5.41], [20.393, -0.908, 3.949], [17.871, -1.456, 2.918], [16.812, 0.693, 4.375], [18.585, -0.11, 4.173], [16.963, 3.261, 6.5], [22.629, 1.394, 4.626], [20.187, -3.769, 2.223], [14.613, -0.809, 2.378], [22.049, 4.49, 6.804], [22.675, 3.743, 5.353], [22.765, 2.898, 6.879], [18.962, 5.133, 7.122], [20.286, 4.372, 8.114], [18.954, 3.788, 9.64], [17.824, 3.094, 8.442], [24.251, -0.044, 5.054], [24.766, -0.828, 3.579], [24.569, -1.762, 5.043], [22.23, -4.032, 2.482], [24.924, -3.253, 3.296], [24.374, -4.737, 2.466], [19.131, -4.58, 0.677], [17.91, -4.179, -0.507], [17.52, -5.239, 0.827], [14.402, -2.725, 1.196], [16.146, -3.2, -1.155], [14.36, -3.249, -1.09], [13.036, -0.021, 3.199], [12.782, 1.699, 3.373], [12.395, 0.621, 4.693], [13.446, 3.276, 5.422], [14.99, 3.75, 6.183], [14.57, 2.574, 8.076], [13.256, 1.654, 7.278]];
+  show('#ex3-fig', fig({ equal: true, series: molFig(PYR_E, PYR, 1, 2, true) }));
+
+  /* ---------- § two variables ---------- */
+  const zfun = (x, y) => Math.exp(-(x * x + y * y)) * Math.cos(2 * x);
+  (function () {
+    function draw() {
+      const n = +$('#mg-n').value; $('#mg-no').textContent = n;
+      const v = linspace(-3, 3, n), f2 = a => (Math.abs(a) < 1e-12 ? 0 : a).toFixed(1);
+      const host = $('#mg-grids'); host.innerHTML = '';
+      const vec = (name, vals, vert) => { const b = el('div', 'arr'); b.append(el('span', 'shape', esc(name) + ' <b>(' + n + ',)</b>')); const g = el('div', 'grid'); g.style.gridTemplateColumns = vert ? 'auto' : 'repeat(' + n + ', auto)'; const cs = vals.map(x => { const c = el('div', 'cell', f2(x)); g.append(c); return c; }); b.append(g); host.append(b); return cs; };
+      const xc = vec('x', v, false), yc = vec('y', v, true);
+      const mat = (name, fn) => { const b = el('div', 'arr'); b.append(el('span', 'shape', esc(name) + ' <b>(' + n + ', ' + n + ')</b>')); const g = el('div', 'grid'); g.style.gridTemplateColumns = 'repeat(' + n + ', auto)'; const cs = []; for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { const c = el('div', 'cell', f2(fn(i, j))); c.addEventListener('mouseenter', () => pick(i, j)); g.append(c); cs.push(c); } b.append(g); host.append(b); return cs; };
+      const xx = mat('xx', (i, j) => v[j]), yy = mat('yy', (i, j) => v[i]), zz = mat('zz', (i, j) => zfun(v[j], v[i]));
+      zz.forEach((c, k) => { const z = zfun(v[k % n], v[Math.floor(k / n)]); c.textContent = (Math.abs(z) < 0.005 ? 0 : z).toFixed(2); });
+      function pick(i, j) {
+        [...xx, ...yy, ...zz].forEach((c, k) => c.classList.toggle('hot', k % (n * n) === i * n + j));
+        xc.forEach((c, k) => c.classList.toggle('sel', k === j)); yc.forEach((c, k) => c.classList.toggle('sel', k === i));
+        $('#mg-info').innerHTML = C.hl(`xx[${i}, ${j}], yy[${i}, ${j}]`) + '<span class="arrow">→</span>' + C.hl(`x[${j}], y[${i}]`) + '<span class="arrow">→</span>(' + f2(v[j]) + ', ' + f2(v[i]) + ')';
+      }
+      pick(0, n - 1);
+    }
+    $('#mg-n').addEventListener('input', draw); draw();
+  })();
+  (function () {
+    const st = { lv: 20, cm: 'viridis' }, ctl = $('#cf-ctl'), N = 100;
+    const xs = linspace(-3, 3, N);
+    let zmin = Infinity, zmax = -Infinity;
+    xs.forEach(y => xs.forEach(x => { const z = zfun(x, y); zmin = Math.min(zmin, z); zmax = Math.max(zmax, z); }));
+    slider(ctl, 'levels', 2, 40, 1, 20, v => { st.lv = v; draw(); });
+    seg(ctl, 'cmap', Object.keys(CMAPS), 'viridis', v => { st.cm = v; draw(); }, v => "'" + v + "'");
+    function draw() {
+      codeInto($('#cf-code'), "cp = plt.contourf(xx, yy, zz, levels=" + st.lv + ", cmap='" + st.cm + "')\nplt.colorbar(cp)\nplt.show()");
+      // levels=n: matplotlib picks at most n+1 round intervals covering the data
+      const nl = nice(zmin, zmax, st.lv + 1, STEPS), lo = Math.floor(zmin / nl.st + 1e-9) * nl.st, hi = Math.ceil(zmax / nl.st - 1e-9) * nl.st;
+      const lv = []; for (let v = lo; v <= hi + nl.st * 1e-6; v += nl.st) lv.push(v);
+      const cm = cmap(st.cm), K = lv.length - 1, px = 220;
+      show('#cf-fig', fig({ xlim: [-3, 3], ylim: [-3, 3], h: 320, cbar: { cmap: cm, levels: lv }, image: f => raster(f, px, px, (i, j) => {
+        const z = zfun(-3 + 6 * (i + .5) / px, 3 - 6 * (j + .5) / px);
+        const b = Math.min(K - 1, Math.max(0, Math.floor((z - lo) / nl.st)));
+        return cm(K > 1 ? b / (K - 1) : .5);
+      }, true) }));
+    }
+    draw();
+  })();
+  (function () {
+    const cm = cmap('coolwarm'), N = 100, xs = linspace(-3, 3, N);
+    const Z = xs.map(y => xs.map(x => zfun(x, y)));
+    let zmin = Infinity, zmax = -Infinity; Z.forEach(r => r.forEach(z => { zmin = Math.min(zmin, z); zmax = Math.max(zmax, z); }));
+    show('#im-fig', fig({ xlim: [-3, 3], ylim: [-3, 3], h: 320, cbar: { cmap: cm, vmin: zmin, vmax: zmax }, image: f => raster(f, N, N, (i, j) => cm((Z[N - 1 - j][i] - zmin) / (zmax - zmin))) }));
+    // origin on a 3 x 3 matrix: where does row 0 go?
+    let origin = 'upper';
+    seg($('#im-ctl'), 'origin', ['upper', 'lower'], 'upper', v => { origin = v; small(); }, v => "'" + v + "'");
+    const vir = cmap('viridis');
+    function small() {
+      codeInto($('#im-code'), "plt.imshow(np.arange(9).reshape(3, 3), origin='" + origin + "')");
+      show('#im-small', fig({ w: 220, h: 200, ml: 30, cls: 'small', xlim: [-0.5, 2.5], ylim: origin === 'upper' ? [2.5, -0.5] : [-0.5, 2.5], xn: 3, yn: 3, image: f => {
+        for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+          const v = r * 3 + c, x = f.X(c - .5), y = Math.min(f.Y(r - .5), f.Y(r + .5));
+          f.g.append(S('rect', { x, y, width: f.pw / 3, height: f.ph / 3, fill: rgb(vir(v / 8)) }));
+          f.g.append(S('text', { x: x + f.pw / 6, y: y + f.ph / 6 + 5, 'text-anchor': 'middle', style: 'fill:' + (v > 4 ? '#000' : '#fff') + ';font-size:15px' }, v));
+        }
+      } }));
+    }
+    small();
+  })();
+
+  /* colour image: cpk[i, j] is [r, g, b] */
+  (function () {
+    const CPK = [[[1.0, 1.0, 1.0], [0.56, 0.56, 0.56], [0.19, 0.31, 0.97]], [[1.0, 0.05, 0.05], [1.0, 1.0, 0.19], [0.12, 0.94, 0.12]]];
+    const EL = [['H', 'C', 'N'], ['O', 'S', 'Cl']], fmt = v => v.toFixed(2).replace(/0$/, '');
+    let ch = 'rgb';
+    seg($('#rgb-ctl'), 'show', ['rgb', '0', '1', '2'], 'rgb', v => { ch = v; draw(); }, v => v === 'rgb' ? 'cpk' : 'cpk[:, :, ' + v + ']');
+    function draw() {
+      codeInto($('#rgb-code'), ch === 'rgb' ? 'plt.imshow(cpk)\nplt.show()' : "plt.imshow(cpk[:, :, " + ch + "], cmap='gray')\nplt.colorbar()\nplt.show()");
+      const k = +ch, vals = CPK.flat().map(p => p[k]), lo = Math.min(...vals), hi = Math.max(...vals);
+      const color = p => ch === 'rgb' ? p.map(v => Math.round(v * 255)) : Array(3).fill(Math.round((p[k] - lo) / (hi - lo) * 255));
+      const gray = t => [t, t, t].map(v => Math.round(v * 255));
+      const f = show('#rgb-fig', fig({ w: 400, h: 300, xlim: [-0.5, 2.5], ylim: [1.5, -0.5], xn: 6, yn: 4, cbar: ch === 'rgb' ? null : { cmap: gray, vmin: lo, vmax: hi }, image: f => {
+        CPK.forEach((row, i) => row.forEach((p, j) => {
+          const x = f.X(j - .5), y = f.Y(i - .5), r = S('rect', { x, y, width: f.pw / 3, height: f.ph / 2, fill: rgb(color(p)) });
+          r.onmouseenter = () => { $('#rgb-info').innerHTML = C.hl(ch === 'rgb' ? 'cpk[' + i + ', ' + j + ']' : 'cpk[' + i + ', ' + j + ', ' + ch + ']') + '<span class="arrow">→</span>' + (ch === 'rgb' ? '[' + p.map(fmt).join(', ') + ']' : fmt(p[k])) + '<span class="muted">  ' + EL[i][j] + '</span>'; };
+          f.g.append(r);
+        }));
+      } }));
+    }
+    draw();
+    $('#rgb-info').innerHTML = '<span class="muted">Hover a pixel.</span>';
+  })();
+
+  /* SymPy outputs: Jupyter shows a SymPy expression as LaTeX */
+  if (window.katex) document.querySelectorAll('.out.tex').forEach(e => katex.render(e.dataset.tex, e, { displayMode: true, throwOnError: false }));
+
+  /* ---------- § quad ---------- */
+  function erf(x) {   // Abramowitz-Stegun 7.1.26, |error| < 1.5e-7
+    const s = Math.sign(x); x = Math.abs(x);
+    const t = 1 / (1 + 0.3275911 * x);
+    return s * (1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x));
+  }
+  (function () {
+    const LIM = [-Infinity, -3, -2, -1, 0, 1, 2, 3, Infinity];
+    const st = { a: 0, b: 8, mu: 0, sg: 1 }, ctl = $('#q-ctl');
+    const lab = v => v === -Infinity ? '-np.inf' : v === Infinity ? 'np.inf' : String(v);
+    slider(ctl, 'lower', 0, 8, 1, 0, v => { st.a = v; draw(); }, v => lab(LIM[v]));
+    slider(ctl, 'upper', 0, 8, 1, 8, v => { st.b = v; draw(); }, v => lab(LIM[v]));
+    slider(ctl, 'mu', -2, 2, 0.5, 0, v => { st.mu = v; draw(); });
+    slider(ctl, 'sigma', 0.5, 2, 0.25, 1, v => { st.sg = v; draw(); });
+    const xs = linspace(-4.5, 4.5, 300);
+    function draw() {
+      const a = LIM[st.a], b = LIM[st.b], { mu, sg } = st;
+      const g = x => Math.exp(-((x - mu) ** 2) / (2 * sg * sg)) / Math.sqrt(2 * Math.PI * sg * sg);
+      codeInto($('#q-code'), 'quad(gaussian, ' + lab(a) + ', ' + lab(b) + ', args=(' + mu + ', ' + sg + '))[0]');
+      const sx = xs.filter(x => x >= a && x <= b);
+      const series = [{ x: xs, y: xs.map(g), color: 'black' }];
+      if (sx.length > 1) series.push({ type: 'fill', x: sx, y: sx.map(g), color: CYC[0], alpha: .35 });
+      show('#q-fig', fig({ xlim: [-4.5, 4.5], ylim: [0, 0.85], h: 240, series }));
+      const F = x => x === Infinity ? 1 : x === -Infinity ? 0 : 0.5 * (1 + erf((x - mu) / (sg * Math.SQRT2)));
+      $('#q-val').innerHTML = 'area<span class="arrow">≈</span>' + (F(b) - F(a)).toFixed(4);
+    }
+    draw();
+  })();
+
+  /* ---------- § interp1d ---------- */
+  function spline(xd, yd) {   // cubic spline with not-a-knot ends, as interp1d(kind='cubic')
+    const n = xd.length, h = xd.slice(1).map((x, i) => x - xd[i]);
+    const A = Array.from({ length: n }, () => new Array(n).fill(0)), rhs = new Array(n).fill(0);
+    for (let i = 1; i < n - 1; i++) { A[i][i - 1] = h[i - 1]; A[i][i] = 2 * (h[i - 1] + h[i]); A[i][i + 1] = h[i]; rhs[i] = 6 * ((yd[i + 1] - yd[i]) / h[i] - (yd[i] - yd[i - 1]) / h[i - 1]); }
+    A[0][0] = h[1]; A[0][1] = -(h[0] + h[1]); A[0][2] = h[0];
+    A[n - 1][n - 3] = h[n - 2]; A[n - 1][n - 2] = -(h[n - 3] + h[n - 2]); A[n - 1][n - 1] = h[n - 3];
+    for (let c = 0; c < n; c++) {   // Gaussian elimination with partial pivoting
+      let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r;
+      [A[c], A[p]] = [A[p], A[c]]; [rhs[c], rhs[p]] = [rhs[p], rhs[c]];
+      for (let r = c + 1; r < n; r++) { const m = A[r][c] / A[c][c]; for (let k = c; k < n; k++) A[r][k] -= m * A[c][k]; rhs[r] -= m * rhs[c]; }
+    }
+    const M = new Array(n).fill(0);
+    for (let r = n - 1; r >= 0; r--) { let s = rhs[r]; for (let k = r + 1; k < n; k++) s -= A[r][k] * M[k]; M[r] = s / A[r][r]; }
+    return x => {
+      let i = xd.findIndex((v, k) => k < n - 1 && x <= xd[k + 1]); if (i < 0) i = n - 2;
+      const t = x - xd[i], u = xd[i + 1] - x, hi = h[i];
+      return M[i] * u ** 3 / (6 * hi) + M[i + 1] * t ** 3 / (6 * hi) + (yd[i] / hi - M[i] * hi / 6) * u + (yd[i + 1] / hi - M[i + 1] * hi / 6) * t;
+    };
+  }
+  function linear(xd, yd) { return x => { let i = xd.findIndex((v, k) => k < xd.length - 1 && x <= xd[k + 1]); if (i < 0) i = xd.length - 2; const t = (x - xd[i]) / (xd[i + 1] - xd[i]); return yd[i] + t * (yd[i + 1] - yd[i]); }; }
+  const npfloat = v => { let s = v.toFixed(8).replace(/0+$/, ''); if (s.endsWith('.')) s += ''; return s === '-0.' ? '0.' : s; };
+  (function () {
+    const st = { n: 8, xn: 4.4 }, ctl = $('#ip-ctl');
+    slider(ctl, 'data points', 4, 15, 1, 8, v => { st.n = v; draw(); });
+    slider(ctl, 'x_new', -1, 12, 0.1, 4.4, v => { st.xn = v; draw(); }, v => v.toFixed(1));
+    const x = linspace(0, 10, 200);
+    function draw() {
+      const xd = linspace(0, 10, st.n), yd = xd.map(Math.sin), fl = linear(xd, yd), fc = spline(xd, yd);
+      const xn = Math.round(st.xn * 10) / 10;
+      const series = [
+        { type: 'scatter', x: xd, y: yd, c: 'black', label: 'data', z: 3 },
+        { x, y: x.map(fl), ci: 0, label: 'linear' }, { x, y: x.map(fc), ci: 1, label: 'cubic' }, { x, y: x.map(Math.sin), ls: ':', ci: 2, label: 'sin' }];
+      const inside = xn >= 0 && xn <= 10;
+      if (inside) series.push({ x: [xn, xn], y: [-1.5, fc(xn)], color: '#e8590c', ls: '--', lw: 1.2, z: 4 }, { type: 'scatter', x: [xn], y: [fc(xn)], c: '#e8590c', s: 60, z: 5 });
+      const f = fig({ xlim: [-1.5, 12.5], ylim: [-1.4, 1.4], legend: 'lr', series });
+      [0, 10].forEach(v => f.g.append(S('line', { x1: f.X(v), x2: f.X(v), y1: f.T, y2: f.T + f.ph, stroke: '#999', 'stroke-dasharray': '2 3' })));
+      if (!inside) f.g.append(S('line', { x1: f.X(xn), x2: f.X(xn), y1: f.T, y2: f.T + f.ph, stroke: '#c5221f', 'stroke-width': 2 }));
+      show('#ip-fig', f);
+      codeInto($('#ip-call'), 'x_data = np.linspace(0, 10, ' + st.n + ')\nf_cubic(' + xn.toFixed(1) + ')');
+      const o = $('#ip-out'); o.innerHTML = '';
+      if (inside) o.textContent = 'array(' + npfloat(fc(xn)) + ')';
+      else o.append(el('span', 'err', esc('ValueError: A value (' + xn.toFixed(1) + ') in x_new is ' + (xn > 10 ? "above the interpolation range's maximum value (10.0)." : "below the interpolation range's minimum value (0.0)."))));
+    }
+    draw();
+  })();
+  (function () {
+    const rd = linspace(0.5, 2.5, 6), ed = rd.map(morse), fc = spline(rd, ed), r = linspace(0.5, 2.5, 200);
+    show('#sx1-fig', fig({ title: 'r = [0.5, 0.9, 1.3, 1.7, 2.1, 2.5]', xlabel: 'r ($\\AA$)', ylabel: 'E (kcal/mol)', legend: 'lr', series: [
+      { x: r, y: r.map(morse), ci: 0, label: 'Morse' }, { x: r, y: r.map(fc), ci: 1, label: 'Cubic splines fit' }, { type: 'scatter', x: rd, y: ed, ci: 2, label: 'data' }] }));
+  })();
+
+  /* ---------- § minimize: iterations recorded from scipy with a callback ---------- */
+  (function () {
+    const RUNS = { '0.5': { path: [0.5, 0.82341, 0.78506, 0.72668, 0.74182, 0.74007, 0.74, 0.74], nit: 7, rep: '(array([0.73999999]), 2.2317401269718672e-14)' },
+      '1.0': { path: [1.0, 0.75052, 0.74007, 0.74, 0.74], nit: 4, rep: '(array([0.73999999]), 2.016877701572841e-14)' },
+      '1.5': { path: [1.5, 0.79112, 0.7413, 0.73979, 0.74, 0.74], nit: 5, rep: '(array([0.73999999]), 1.995422625827045e-14)' },
+      '2.5': { path: [2.5, 0.74007, 0.74, 0.74], nit: 3, rep: '(array([0.73999999]), 2.3511387504019125e-14)' },
+      '4.0': { path: [4.0, 0.73981, 0.74008, 0.74, 0.74], nit: 4, rep: '(array([0.73999999]), 2.2841525018461662e-14)' },
+      '10.0': { path: [10.0], nit: 0, rep: '(array([10.]), 108.99999655953852)' } };
+    const r = linspace(0.3, 10.5, 400);
+    seg($('#mn-ctl'), 'x0', Object.keys(RUNS), '1.5', draw);
+    function draw(k) {
+      const run = RUNS[k];
+      codeInto($('#mn-code'), 'from scipy.optimize import minimize\n\ndef morse(r):\n    return 109 * (1 - np.exp(-1.94 * (r - 0.74)))**2\n\nresult = minimize(morse, x0=' + k + ')\nresult.x, result.fun');
+      $('#mn-out').textContent = run.rep;
+      const p = run.path;
+      const xm = k === '10.0' ? 10.8 : 4.3, rr = r.filter(v => v <= xm);
+      const f = fig({ xlim: [0.3, xm], ylim: [-8, 215], xlabel: 'r ($\\AA$)', ylabel: 'E (kcal/mol)', series: [{ x: rr, y: rr.map(morse), color: 'black', lw: 1.2 }] });
+      for (let i = 0; i + 1 < p.length; i++) f.g.append(S('line', { x1: f.X(p[i]), y1: f.Y(morse(p[i])), x2: f.X(p[i + 1]), y2: f.Y(morse(p[i + 1])), stroke: '#e8590c', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' }));
+      p.forEach((v, i) => f.g.append(S('circle', { cx: f.X(v), cy: f.Y(morse(v)), r: i ? 3.5 : 5, fill: i ? '#e8590c' : '#fff', stroke: '#e8590c', 'stroke-width': 2 })));
+      show('#mn-fig', f);
+      $('#mn-path').innerHTML = esc(run.nit + ' iteration' + (run.nit === 1 ? '' : 's') + ': ') + p.map(v => v.toFixed(3)).join(' → ') +
+        (k === '10.0' ? '<br><span class="muted">At r = 10 Å the slope is 7·10⁻⁶ kcal/mol/Å: flat enough to count as a minimum.</span>' : '');
+    }
+    draw('1.5');
+  })();
+
+  /* ---------- § SymPy ---------- */
+  (function () {
+    const x = linspace(0, 2 * Math.PI, 300), y = x.map(v => v * Math.cos(v) ** 2);
+    show('#sy-fig', fig({ h: 220, xlim: [0, 2 * Math.PI], ylim: [0, 6.6], series: [{ type: 'fill', x, y, ci: 0, alpha: .35 }, { x, y, color: 'black' }] }));
+  })();
+
+  /* ---------- § ASE: heme in 3-D ---------- */
+  (function () {
+    const N = HEME.length, cen = [0, 1, 2].map(k => HEME.reduce((s, p) => s + p[k], 0) / N);
+    const P0 = HEME.map(p => p.map((v, k) => v - cen[k]));
+    const COL = { C: '#909090', H: '#ffffff', N: '#3050f8', O: '#ff0d0d', Fe: '#e06633' }, RAD = { C: .38, H: .25, N: .38, O: .38, Fe: .55 };
+    const bonds = [];
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) { const d = dist(HEME[i], HEME[j]); if (d < 1.6 || (d < 2.1 && (HEME_E[i] === 'Fe' || HEME_E[j] === 'Fe'))) bonds.push([i, j]); }
+    // start face-on: the porphyrin plane spanned by Fe->N38 and Fe->N39
+    const sub = (a, b) => a.map((v, k) => v - b[k]), cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], unit = a => { const l = Math.hypot(...a); return a.map(v => v / l); };
+    const e1 = unit(sub(HEME[38], HEME[42])), e3 = unit(cross(e1, sub(HEME[39], HEME[42]))), e2 = cross(e3, e1);
+    let Rm = [e1, e2, e3];
+    const rot = (ax, t) => { const c = Math.cos(t), s = Math.sin(t); return ax === 'x' ? [[1, 0, 0], [0, c, -s], [0, s, c]] : [[c, 0, s], [0, 1, 0], [-s, 0, c]]; };
+    const mul = (A, B) => A.map(r => [0, 1, 2].map(j => r[0] * B[0][j] + r[1] * B[1][j] + r[2] * B[2][j]));
+    Rm = mul(rot('x', -0.5), Rm);
+    const svg = S('svg', { viewBox: '-8.5 -8.5 17 17' }); $('#ase-view').append(svg);
+    let hl = { atoms: [], kind: null };
+    function render() {
+      svg.innerHTML = '';
+      const Q = P0.map(p => Rm.map(r => r[0] * p[0] + r[1] * p[1] + r[2] * p[2]));
+      const sy = q => -q[1];
+      bonds.forEach(([i, j]) => svg.append(S('line', { x1: Q[i][0], y1: sy(Q[i]), x2: Q[j][0], y2: sy(Q[j]), stroke: '#888', 'stroke-width': .12 })));
+      [...Q.keys()].sort((a, b) => Q[a][2] - Q[b][2]).forEach(i => {
+        const e = HEME_E[i], on = hl.atoms.includes(i);
+        const c = S('circle', { cx: Q[i][0], cy: sy(Q[i]), r: RAD[e], fill: COL[e], stroke: on ? '#e8590c' : '#555', 'stroke-width': on ? .14 : .03 });
+        c.append(S('title', {}, i + ' ' + e)); svg.append(c);
+        if (on) {   // label outward from the centre of the molecule, so labels of neighbours do not overlap
+          const l = Math.hypot(Q[i][0], Q[i][1]), dx = l > .5 ? Q[i][0] / l : 0, dy = l > .5 ? -Q[i][1] / l : -1;
+          svg.append(S('text', { x: Q[i][0] + .85 * dx, y: sy(Q[i]) + .85 * dy + .25, 'text-anchor': 'middle', style: 'font-size:.7px;fill:#000;font-weight:600' }, e + i));
+        }
+      });
+      const A = hl.atoms;
+      if (hl.kind === 'd') svg.append(S('line', { x1: Q[A[0]][0], y1: sy(Q[A[0]]), x2: Q[A[1]][0], y2: sy(Q[A[1]]), stroke: '#e8590c', 'stroke-width': .1, 'stroke-dasharray': '.25 .15' }));
+      if (hl.kind === 'a') [0, 2].forEach(k => svg.append(S('line', { x1: Q[A[1]][0], y1: sy(Q[A[1]]), x2: Q[A[k]][0], y2: sy(Q[A[k]]), stroke: '#e8590c', 'stroke-width': .14 })));
+      if (hl.kind === 't') svg.append(S('polyline', { points: A.map(i => Q[i][0] + ',' + sy(Q[i])).join(' '), fill: 'none', stroke: '#e8590c', 'stroke-width': .14 }));
+    }
+    render();
+    let drag = null;
+    svg.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY]; svg.setPointerCapture(e.pointerId); svg.style.cursor = 'grabbing'; });
+    svg.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const k = 17 / svg.getBoundingClientRect().width * 0.25;
+      Rm = mul(rot('y', (e.clientX - drag[0]) * k), mul(rot('x', (e.clientY - drag[1]) * k), Rm)); drag = [e.clientX, e.clientY]; render();
+    });
+    svg.addEventListener('pointerup', () => { drag = null; svg.style.cursor = ''; });
+    const OPS = [
+      { code: 'heme.get_distance(42, 38)', atoms: [42, 38], kind: 'd', out: 'np.float64(1.9682065440395218)', note: 'Fe–N bond, Å' },
+      { code: 'heme.get_angle(38, 42, 39)', atoms: [38, 42, 39], kind: 'a', out: 'np.float64(89.06715579664952)', note: 'N–Fe–N, neighbours, degrees' },
+      { code: 'heme.get_angle(38, 42, 40)', atoms: [38, 42, 40], kind: 'a', out: 'np.float64(178.1091776095076)', note: 'N–Fe–N, opposite, degrees' },
+      { code: 'heme.get_dihedral(24, 23, 26, 27)', atoms: [24, 23, 26, 27], kind: 't', out: 'np.float64(135.05394168499697)', note: 'C–C–C=C: vinyl twisted against the porphyrin ring, degrees' },
+    ];
+    const btns = OPS.map(op => {
+      const b = el('button', '', C.hl(op.code)); b.type = 'button';
+      b.onclick = () => { btns.forEach(x => x.classList.toggle('on', x === b)); hl = { atoms: op.atoms, kind: op.kind }; render(); $('#ase-out').innerHTML = esc(op.out) + '  <span class="muted">' + esc(op.note) + '</span>'; };
+      $('#ase-ops').append(b); return b;
+    });
+    btns[0].click();
+  })();
+};
+</script>
+</body>
+</html>
