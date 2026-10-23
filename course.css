@@ -240,8 +240,9 @@ button.btn:disabled { opacity: .4; cursor: default; }
 
 /* tooltips / hover reveals */
 [data-tip] { position: relative; border-bottom: 1px dotted var(--accent); cursor: help; }
-[data-tip]:hover::after {
-  content: attr(data-tip); position: absolute; left: 0; top: 100%; z-index: 5; margin-top: .3rem;
+/* one box on <body>, placed by course.js, so code blocks that scroll do not clip it */
+#tipbox {
+  position: fixed; z-index: 50; pointer-events: none; display: none;
   background: var(--fg); color: var(--bg); font: .8rem/1.4 var(--sans);
   padding: .35rem .6rem; border-radius: 6px; white-space: pre-line; width: max-content; max-width: 28rem;
 }

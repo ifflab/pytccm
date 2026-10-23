@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Object-Oriented Programming</title>
+<meta name="description" content="Class 4 of the CCPP-I Python course: from functions on tuples and dictionaries to classes for atoms and molecules, special methods, static methods and the course project.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="course.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="course.js"></script>
+<style>
+  .eq { font-size: 1.15em; }
+  /* the same atom stored three ways */
+  .store3 { display: grid; gap: 1rem; align-content: start; }
+  .inst { border: 1px solid var(--border); border-radius: 10px; padding: .7rem .9rem .5rem; position: relative; display: grid; gap: .5rem; }
+  .inst .otype { position: absolute; top: -.75em; left: .6em; font-size: .6rem; background: var(--bg); color: var(--accent); padding: 0 .3em; font-family: var(--mono); }
+  .acc { font-family: var(--mono); font-size: .95rem; display: flex; flex-wrap: wrap; gap: .2rem 1rem; }
+  .attrs { display: grid; grid-template-columns: auto auto; gap: .3rem .6rem; font-family: var(--mono); font-size: .95rem; justify-content: start; }
+  .attrs .a { color: var(--fn); }
+  .attrs .m { grid-column: 1 / -1; color: var(--muted); font-size: .85rem; }
+  /* electrons as dots */
+  /* rewrite chain */
+  .chain { display: grid; gap: .25rem; font-family: var(--mono); font-size: .95rem; margin: .6rem 0; }
+  .chain .crow { padding: .25rem .7rem; border-left: 3px solid var(--border); transition: opacity .2s; white-space: pre; cursor: pointer; }
+  .chain .crow + .crow::before { content: "→ "; color: var(--muted); }
+  .chain .crow.later { opacity: .2; }
+  .chain .crow.cur { border-left-color: var(--accent); background: var(--accent-bg); }
+  .chain .cnote { display: block; color: var(--muted); font-family: var(--sans); font-size: .8rem; white-space: normal; }
+  .chain-exprs button { white-space: pre; }
+  pre.code .line.new { background: var(--c2); }
+  .rule { display: grid; grid-template-columns: auto 1fr; gap: .3rem .8rem; align-items: baseline; align-content: start; }
+  .rule .result { margin: 0; }
+  pre.code.tabs { tab-size: 4; }
+  .proj .controls { margin: .4rem 0; }
+  /* code column as wide as its longest line, the other panel takes the rest */
+  @media (min-width: 901px) { .viz.cols.fit, .tracer.fit { grid-template-columns: max-content minmax(0, 1fr); } .viz.cols.fit2 { grid-template-columns: max-content max-content; } }
+  #tp-mol .cell { min-width: 1.8em; padding: 0 .35em; font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a class="home" href="index.html" title="Home" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg></a>
+  <span class="sep"></span>
+  <select id="nav" aria-label="Go to section"></select>
+  <span class="sep"></span>
+  <button id="fs-minus" type="button" title="Smaller text">A−</button><span class="fs" id="fs-size">19px</span><button id="fs-plus" type="button" title="Larger text">A+</button>
+  <span class="sep"></span>
+  <button id="theme" type="button">theme: auto</button>
+</div>
+<main>
+<header class="doc">
+  <div class="caption">CCPP-I · Class 04</div>
+  <h1>Object-oriented programming</h1>
+  <p class="keys"><kbd>J</kbd>/<kbd>K</kbd> or <kbd>→</kbd>/<kbd>←</kbd> jump between sections</p>
+</header>
+
+<!-- ============================================================ -->
+<section class="step" id="tuples" data-nav="Atoms as tuples">
+  <h2>Atoms as tuples: functions only</h2>
+  <p class="lead">No classes yet. Each time the data gets in the way, we change how it is stored. Hover the call.</p>
+  <details><summary><code>ATOMIC_DATA</code>: symbol → (atomic number, mass)</summary>
+<pre class="code" data-src>
+ATOMIC_DATA = {
+    'H': (1, 1.008), 'He': (2, 4.0026), 'Li': (3, 6.94), 'Be': (4, 9.0122),
+    'B': (5, 10.81), 'C': (6, 12.011), 'N': (7, 14.007), 'O': (8, 15.999),
+    'F': (9, 18.998), 'Ne': (10, 20.180), 'Na': (11, 22.990), 'Mg': (12, 24.305),
+    'Al': (13, 26.982), 'Si': (14, 28.085), 'P': (15, 30.974), 'S': (16, 32.06),
+    'Cl': (17, 35.45), 'Ar': (18, 39.95), 'K': (19, 39.098), 'Ca': (20, 40.078),
+    'Sc': (21, 44.956), 'Ti': (22, 47.867), 'V': (23, 50.942), 'Cr': (24, 51.996),
+    'Mn': (25, 54.938), 'Fe': (26, 55.845), 'Co': (27, 58.933), 'Ni': (28, 58.693),
+    'Cu': (29, 63.546), 'Zn': (30, 65.38), 'Ga': (31, 69.723), 'Ge': (32, 72.63),
+    'As': (33, 74.922), 'Se': (34, 78.971), 'Br': (35, 79.904), 'Kr': (36, 83.798),
+}
+</pre>
+  </details>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+H1 = ATOMIC_DATA['H']
+H2 = ATOMIC_DATA['H']
+O = ATOMIC_DATA['O']
+
+h2o = [H1, H2, O]
+</pre>
+<pre class="code"><code>def describe_atom(symbol, number, mass):
+    print(f'{symbol}: number {number}, mass {mass}')
+
+
+def get_molecule_mass(molecule):
+    return sum(<span class="g3" data-g="t-mass">atom[1]</span> for atom in molecule)</code></pre>
+<pre class="code"><code>describe_atom(<span class="g1" data-tip="Typed by hand: the tuple does not store the symbol.">'C'</span>,
+              <span class="g2" data-tip="Index 0 is the atomic number. You have to remember that.">ATOMIC_DATA['C'][0]</span>,
+              <span class="g3" data-tip="Index 1 is the mass.">ATOMIC_DATA['C'][1]</span>)</code></pre>
+      <div class="out">C: number 6, mass 12.011</div>
+<pre class="code" data-src>
+get_molecule_mass(h2o)
+</pre>
+      <div class="out">18.015</div>
+    </div>
+    <div>
+      <div class="result muted">h2o, a list of tuples: which number is which?</div>
+      <div class="cells" id="tp-mol"></div>
+    </div>
+  </div>
+  <h3>A dictionary names its fields</h3>
+  <div class="viz cols fit">
+    <div>
+<pre class="code" data-src>
+H1 = {'symbol': 'H',
+      'number': ATOMIC_DATA['H'][0],
+      'mass': ATOMIC_DATA['H'][1]}
+H2 = {'symbol': 'H',
+      'number': ATOMIC_DATA['H'][0],
+      'mass': ATOMIC_DATA['H'][1]}
+O = {'symbol': 'O',
+     'number': ATOMIC_DATA['O'][0],
+     'mass': ATOMIC_DATA['O'][1]}
+h2o = [H1, H2, O]
+H1
+</pre>
+      <div class="out">{'symbol': 'H', 'number': 1, 'mass': 1.008}</div>
+    </div>
+    <div class="dict" id="tp-dict"></div>
+  </div>
+</section>
+
+<section class="pause" id="ex1" data-nav="Exercise 1">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 1: Atom dictionaries</h2></div>
+  <div class="ex">
+    <p>Write <code>get_atom(symbol)</code> that returns an atom dictionary. Rewrite <code>describe_atom</code> and <code>get_molecule_mass</code> to take atom dictionaries.</p>
+<pre class="code" data-src>
+H1 = get_atom('H')
+H2 = get_atom('H')
+O = get_atom('O')
+describe_atom(H1)
+
+h2o = [H1, H2, O]
+get_molecule_mass(h2o)
+</pre>
+<pre class="out">H: number 1, mass 1.008
+18.015</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="charge" data-nav="Electrons and charge">
+  <h2>Electrons: the list of atoms does not know the charge</h2>
+  <p class="lead">Hydroxide, OH⁻, has 10 electrons. The function counts 9.</p>
+<pre class="code" data-src>
+def get_molecule_electrons(molecule):
+    return sum(atom['number'] for atom in molecule)
+
+get_molecule_electrons(h2o)
+</pre>
+  <div class="out">10</div>
+<pre class="code" data-src>
+oh = [O, H1]
+get_molecule_electrons(oh)
+</pre>
+  <div class="out">9</div>
+  <div class="result">OH⁻: 8 + 1 + 1 <span class="arrow">=</span> 10 electrons</div>
+</section>
+
+<section class="pause" id="ex2" data-nav="Exercise 2">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 2: Charge</h2></div>
+  <div class="ex">
+    <p>Give <code>get_molecule_electrons</code> a <code>charge</code> argument.</p>
+<pre class="code" data-src>
+get_molecule_electrons(oh, -1)
+</pre>
+<pre class="out">10</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="moldict" data-nav="Molecule dictionary">
+  <h2>Keep atoms and charge together</h2>
+  <p class="lead">With a separate charge, every call has to pass <code>-1</code> along.</p>
+<pre class="code"><code>get_molecule_electrons(<span class="g1" data-tip="The atoms only: [O, H1]">oh</span>, <span class="g2" data-tip="The charge, typed again at every call">-1</span>)</code></pre>
+  <div class="out">10</div>
+  <p class="lead">One dictionary keeps the atoms and the charge together.</p>
+<pre class="code" data-src>
+oh = {'atoms': [O, H1], 'charge': -1}
+</pre>
+</section>
+
+<section class="pause" id="ex34" data-nav="Exercises 3–4">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercises 3–4: Molecule dictionaries</h2></div>
+  <div class="ex">
+    <h3>3. Electrons</h3>
+    <p>Rewrite <code>get_molecule_electrons</code> to take a molecule dictionary.</p>
+<pre class="code" data-src>
+oh = {'atoms': [O, H1], 'charge': -1}
+get_molecule_electrons(oh)
+</pre>
+<pre class="out">10</pre>
+  </div>
+  <div class="ex">
+    <h3>4. <code>describe_molecule</code></h3>
+    <p>Write <code>describe_molecule(molecule)</code> for a molecule dictionary.</p>
+<pre class="code" data-src>
+h2o = {'atoms': [O, H1, H2], 'charge': 0}
+describe_molecule(h2o)
+</pre>
+<pre class="out">Molecule with 3 atoms</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="atomclass" data-nav="A class for atoms">
+  <h2>A class: the data and its functions together</h2>
+  <p class="lead">The dictionaries work, but they print as a nest, nothing checks the keys, and the functions live apart from the data.</p>
+  <div class="viz cols fit">
+    <div>
+<pre class="code" data-src>
+h2o = {'atoms': [O, H1, H2], 'charge': 0}
+h2o
+</pre>
+      <div class="out">{'atoms': [{'symbol': 'O', 'number': 8, 'mass': 15.999},
+  {'symbol': 'H', 'number': 1, 'mass': 1.008},
+  {'symbol': 'H', 'number': 1, 'mass': 1.008}],
+ 'charge': 0}</div>
+    </div>
+    <div>
+<pre class="code" data-src>
+# a typo fails only when this line runs
+atom['nubmer']
+</pre>
+      <div class="out"><span class="err">KeyError: 'nubmer'</span></div>
+      <p class="muted"><code>describe_atom</code>, <code>get_molecule_mass</code>, <code>get_molecule_electrons</code>… all have to know the keys.</p>
+    </div>
+  </div>
+  <h3>Step through <code>Atom('H')</code>: <code>self</code> is the new object</h3>
+  <div id="tr-atom"></div>
+  <h3>Attributes and methods. Hover an access.</h3>
+  <div class="viz cols">
+    <div>
+<pre class="code" data-src>
+H1 = Atom('H')
+H1
+</pre>
+      <div class="out"><span data-tip="The class name and the memory address: not informative. Next section.">&lt;__main__.Atom at 0x78099fac1850&gt;</span></div>
+<pre class="code" data-src>
+type(H1), type(H1) == Atom
+</pre>
+      <div class="out">(<span data-tip="The type of the object is the class. __main__ is the notebook's module.">__main__.Atom</span>, True)</div>
+<pre class="code" data-src>
+H1.symbol, H1.number, H1.mass
+</pre>
+      <div class="out">('H', 1, 1.008)</div>
+<pre class="code" data-src>
+H1.describe()
+</pre>
+      <div class="out">H: number 1, mass 1.008</div>
+    </div>
+    <div class="store3">
+      <div class="inst"><span class="otype">tuple</span>
+        <div class="cells">
+          <div class="cellcol"><div class="idx">0</div><div class="cell grp" data-g="s-num">1</div></div>
+          <div class="cellcol"><div class="idx">1</div><div class="cell grp" data-g="s-mass">1.008</div></div>
+        </div>
+        <div class="acc"><span class="grp" data-g="s-num">H1[0]</span><span class="grp" data-g="s-mass">H1[1]</span><span class="muted grp" data-g="s-sym">no symbol</span></div>
+      </div>
+      <div class="inst"><span class="otype">dict</span>
+        <div class="dict"><span class="k">'symbol'</span><span class="ar">→</span><span class="v grp" data-g="s-sym">'H'</span><span class="k">'number'</span><span class="ar">→</span><span class="v grp" data-g="s-num">1</span><span class="k">'mass'</span><span class="ar">→</span><span class="v grp" data-g="s-mass">1.008</span></div>
+        <div class="acc"><span class="grp" data-g="s-sym">H1['symbol']</span><span class="grp" data-g="s-num">H1['number']</span><span class="grp" data-g="s-mass">H1['mass']</span></div>
+      </div>
+      <div class="inst"><span class="otype">Atom</span>
+        <div class="attrs"><span class="a">symbol</span><span class="grp" data-g="s-sym">'H'</span><span class="a">number</span><span class="grp" data-g="s-num">1</span><span class="a">mass</span><span class="grp" data-g="s-mass">1.008</span><span class="m grp" data-g="s-desc">from the class: describe()</span></div>
+        <div class="acc"><span class="grp" data-g="s-sym">H1.symbol</span><span class="grp" data-g="s-num">H1.number</span><span class="grp" data-g="s-mass">H1.mass</span><span class="grp" data-g="s-desc">H1.describe()</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="str" data-nav="__str__">
+  <h2><code>__str__</code>: how an object prints</h2>
+  <p class="lead"><code>str()</code> and <code>print</code> call <code>__str__</code>. Tick it.</p>
+  <div class="controls"><label><input type="checkbox" id="st-on"> <code>__str__</code></label></div>
+  <pre class="code" id="st-code"></pre>
+  <div class="rule" id="st-out" style="margin-top:.8rem"></div>
+  <p class="muted">The notebook shows the last line of a cell with another method, <code>__repr__</code>; that is why <code>H1</code> alone still shows the address.</p>
+</section>
+
+<section class="pause" id="ex56" data-nav="Exercises 5–6">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercises 5–6: A <code>Molecule</code> class</h2></div>
+  <div class="ex">
+    <h3>5. <code>Molecule</code></h3>
+    <p>Write a class for molecules: a list of <code>Atom</code> objects and a charge.</p>
+<pre class="code" data-src>
+h2o = Molecule(atoms=[H1, H2, O], charge=0)
+print(h2o)
+</pre>
+<pre class="out">Molecule with 3 atoms</pre>
+  </div>
+  <div class="ex">
+    <h3>6. Methods</h3>
+    <p>Add <code>get_electrons</code>, <code>add_electron</code>, <code>remove_electron</code>, <code>is_radical</code> and <code>add_atom(atom)</code>.</p>
+<pre class="code" data-src>
+h2o.get_electrons()
+Molecule([Atom('O'), Atom('H')], -1).get_electrons()
+Molecule([Atom('O'), Atom('H')]).is_radical()
+</pre>
+<pre class="out">10
+10
+True</pre>
+    <p>Extra: <code>__str__</code> with the formula. Hint: the atom counter of the first homework.</p>
+<pre class="code" data-src>
+print(h2o)
+</pre>
+<pre class="out">Molecule H2O with 3 atoms</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="check" data-nav="Checking the input">
+  <h2>Checking the input: fail where the mistake is</h2>
+  <p class="lead"><code>add_atom</code> accepts anything. A string slips in, and the error appears later, in <code>print</code>. Click the lines in order.</p>
+  <div class="controls"><span class="seg" id="ck-seg"></span></div>
+  <pre class="code" id="ck-code"></pre>
+  <div id="ck-ops"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="newobj" data-nav="In place or new object">
+  <h2>Change in place, or return a new object</h2>
+  <p class="lead">An <code>add_atom</code> that changes <code>h2o</code> leaves no water. One that returns a new <code>Molecule</code> keeps both. Click a line.</p>
+  <div class="controls"><span class="seg" id="no-seg"></span></div>
+  <pre class="code" id="no-code"></pre>
+  <div id="no-od"></div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="operators" data-nav="__add__">
+  <h2><code>__add__</code>: give meaning to <code>+</code></h2>
+<pre class="code" data-src>
+h2o + Atom('C')
+</pre>
+  <div class="out"><span class="err">TypeError: unsupported operand type(s) for +: 'Molecule' and 'Atom'</span></div>
+  <p class="lead"><code>h2o + atom</code> calls <code>h2o.__add__(atom)</code>. Green lines are new. Step through.</p>
+  <div id="ch-add"></div>
+  <h3>Syntax → method</h3>
+  <table class="plain" style="max-width: 40rem">
+    <tr><th>you write</th><th>Python calls</th></tr>
+    <tr><td><code>Atom('H')</code></td><td><code>__init__(self, 'H')</code> on a new object</td></tr>
+    <tr><td><code>print(H1)</code>, <code>str(H1)</code></td><td><code>__str__(self)</code></td></tr>
+    <tr><td><code>h2o + atom</code></td><td><code>__add__(self, atom)</code></td></tr>
+  </table>
+</section>
+
+<section class="pause" id="ex7" data-nav="Exercise 7">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 7: <code>+</code> for atoms</h2></div>
+  <div class="ex">
+    <p>Implement <code>Atom.__add__</code>: adding two atoms gives a molecule.</p>
+<pre class="code" data-src>
+print(Atom('O') + Atom('H'))
+</pre>
+<pre class="out">Molecule OH with 2 atoms</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step" id="constructors" data-nav="@staticmethod">
+  <h2>Alternative constructors: <code>@staticmethod</code></h2>
+  <div class="viz cols" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)">
+    <div>
+<pre class="code" data-src>
+print(Molecule(['C', 'C', 'H', 'H']))
+</pre>
+      <div class="out"><span class="err">AttributeError: 'str' object has no attribute 'number'</span></div>
+    </div>
+    <p class="lead">Every symbol needs <code>Atom(...)</code> around it. A static method has no <code>self</code>: it is called on the class and builds the object from other inputs.</p>
+  </div>
+  <div id="ch-sym"></div>
+  <div class="out">Molecule with 3 atoms, 10 electrons
+Molecule with 2 atoms, 10 electrons</div>
+</section>
+
+<section class="pause" id="ex8" data-nav="Exercise 8">
+  <div class="phead"><span class="mark">⏸</span><h2>Exercise 8: Molecules from files</h2></div>
+  <div class="ex">
+    <p>A static method <code>Molecule.from_xyz_file(filename)</code> that reads an xyz file.</p>
+<pre class="code" data-src>
+print(Molecule.from_xyz_file('heme.xyz'))
+</pre>
+<pre class="out">Molecule C34O4N4FeH30 with 73 atoms</pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="step proj" id="project" data-nav="Course project">
+  <h2>The course project: an ORCA scan of ethanol</h2>
+  <p class="lead">Relaxed scan of the OH rotation in ethanol, 0° to 360° in 19 steps of 20°. Press play; pick what to plot.</p>
+  <div class="controls">
+    <label>step <input type="range" id="pj-f" min="0" max="18" value="0"> <output id="pj-fo"></output></label>
+    <button class="btn" id="pj-play" type="button">▶▶ play</button>
+  </div>
+  <div class="controls"><span class="seg" id="pj-seg"></span></div>
+  <div class="viz cols">
+    <div>
+      <div class="mol3d" id="pj-view"></div>
+      <p class="muted">Drag to rotate. Numbers are atom indices.</p>
+    </div>
+    <div>
+      <div id="pj-fig"></div>
+      <div class="out" id="pj-val"></div>
+    </div>
+  </div>
+  <p class="muted">All you need is in <code>scan.out</code> (59 528 lines).</p>
+</section>
+
+<section class="pause" id="proj" data-nav="Course project">
+  <div class="phead"><span class="mark">⏸</span><h2>Course project</h2><span class="muted">exercise1.py and exercise2.py, by Sat 31 Oct 23:59 · 2 points each</span></div>
+  <div class="ex">
+    <h3>1. The energy surface</h3>
+    <p>Read the angles and energies of <code>The Calculated Surface using the SCF energy</code>. Plot the energy in kcal/mol, shifted so that the minimum is zero. Fit with <code>scipy.optimize.curve_fit</code></p>
+    <div class="eq" data-tex="E(\varphi) = \delta + a_1 \cos\varphi + a_2 \cos 2\varphi + a_3 \cos 3\varphi">E = δ + a1 cos φ + a2 cos 2φ + a3 cos 3φ</div>
+    <p>and put δ, a<sub>1</sub>, a<sub>2</sub>, a<sub>3</sub> in the title. <code>argparse</code>: <code>input</code> and <code>output</code>.</p>
+    <div class="file"><span class="fname">scan.out, near the end</span>The Calculated Surface using the SCF energy
+  <span class="g1" data-g="pj-phi"> 0.00000000</span> <span class="g3" data-g="pj-e">-22.92079034</span>
+  <span class="g1" data-g="pj-phi">20.00000000</span> <span class="g3" data-g="pj-e">-22.92121989</span>
+  <span class="g1" data-g="pj-phi">40.00000000</span> <span class="g3" data-g="pj-e">-22.92205453</span>
+<span class="muted">…</span>
+ <span class="g1" data-g="pj-phi">360.00000000</span> <span class="g3" data-g="pj-e">-22.92078952</span></div>
+    <div class="term"><span class="prompt">$ </span>python exercise1.py scan.out scan.png</div>
+    <img class="mpl" src="project_scan.png" alt="Scan energy in kcal/mol against the angle, with the fitted cosine series">
+  </div>
+  <div class="ex">
+    <h3>2. <code>AtomsPlotter</code></h3>
+    <p>Write a function that reads the 19 structures (symbols and coordinates) into a list of <code>ase.Atoms</code>. Write the class <code>AtomsPlotter(atoms_list)</code> with <code>plot_distance(filename, atom1, atom2)</code>, <code>plot_angle(filename, atom1, atom2, atom3)</code> and <code>plot_dihedral(filename, atom1, atom2, atom3, atom4)</code>. The calls are in the template. Hint: the methods of <code>ase.Atoms</code>.</p>
+    <div class="file"><span class="fname">scan.out, 19 times, once per step</span>*** FINAL ENERGY EVALUATION AT THE STATIONARY POINT ***
+<span class="muted">…</span>
+CARTESIAN COORDINATES (ANGSTROEM)
+---------------------------------
+  <span class="g2" data-g="pj-el">C</span>      <span class="g4" data-g="pj-xyz">0.051897    0.064693   -0.233940</span>
+  <span class="g2" data-g="pj-el">H</span>      <span class="g4" data-g="pj-xyz">0.199635   -0.662880    0.575746</span>
+<span class="muted">… 9 atoms, then an empty line</span></div>
+    <p class="muted"><code>CARTESIAN COORDINATES (ANGSTROEM)</code> also appears at every optimisation cycle; take only the block after each <code>FINAL ENERGY EVALUATION</code>.</p>
+    <pre class="code tabs" id="pj-tpl"></pre>
+    <div class="term"><span class="prompt">$ </span>python exercise2.py scan.out</div>
+    <div class="figs">
+      <img class="mpl" src="project_distance.png" alt="Distance between atoms 0 and 8 for each frame">
+      <img class="mpl" src="project_angle.png" alt="Angle 0-1-7 for each frame">
+      <img class="mpl" src="project_dihedral.png" alt="Dihedral 1-0-4-7 for each frame">
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+Course.init = function () {
+  if (window.katex) document.querySelectorAll('.eq').forEach(e => katex.render(e.dataset.tex, e, { displayMode: true, throwOnError: false }));
+  const C = Course, $ = C.$, el = C.el, esc = C.esc;
+  const NS = 'http://www.w3.org/2000/svg';
+  const S = (tag, a, txt) => { const e = document.createElementNS(NS, tag); for (const k in a || {}) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+  function seg(host, items, cur, onpick) {   // items: [[value, label html]]
+    host.innerHTML = '';
+    const bs = items.map(([v, lab]) => {
+      const b = el('button', v === cur ? 'on' : '', lab); b.type = 'button';
+      b.onclick = () => { bs.forEach(x => x.classList.toggle('on', x === b)); onpick(v); };
+      host.append(b); return b;
+    });
+  }
+
+  /* numbered code with some lines marked as new; marks are given as substrings of the lines */
+  const lineNo = (code, s) => code.split('\n').findIndex(l => l.includes(s)) + 1;
+  function codeNew(pre, code, marks) {
+    C.codeBlock(pre, code, true);
+    (marks || []).forEach(s => { const q = pre.querySelector('.line[data-l="' + lineNo(code, s) + '"]'); if (q) q.classList.add('new'); });
+  }
+
+  /* ---------- rewrite chain: click an expression, step through what Python does ----------
+     spec = { code, marks, items: [{ expr, rows: [{ t, l: [substrings of code lines], note }] }] } */
+  function chain(host, spec) {
+    const wrap = el('div', 'viz cols fit');
+    const pre = el('pre', 'code');
+    codeNew(pre, spec.code, spec.marks);
+    const right = el('div');
+    const list = el('div', 'ops chain-exprs'), rows = el('div', 'chain');
+    const ctl = el('div', 'controls');
+    const bPrev = el('button', 'btn', '◀ back'), bNext = el('button', 'btn', 'step ▶');
+    ctl.append(bPrev, bNext);
+    right.append(list, rows, ctl);
+    wrap.append(pre, right);
+    host.append(wrap);
+    let item = 0, k = 0;
+    const btns = spec.items.map((it, j) => { const b = el('button', '', C.hl(it.expr)); b.type = 'button'; b.onclick = () => { item = j; k = 0; render(); }; list.append(b); return b; });
+    function render() {
+      const it = spec.items[item];
+      btns.forEach((b, j) => b.classList.toggle('on', j === item));
+      rows.innerHTML = '';
+      it.rows.forEach((r, j) => {
+        const d = el('div', 'crow' + (j === k ? ' cur' : j > k ? ' later' : ''), C.hl(r.t));
+        if (r.note) d.append(el('span', 'cnote', esc(r.note)));
+        d.onclick = () => { k = j; render(); };
+        rows.append(d);
+      });
+      pre.querySelectorAll('.line.cur').forEach(x => x.classList.remove('cur'));
+      (it.rows[k].l || []).forEach(s => { const q = pre.querySelector('.line[data-l="' + lineNo(spec.code, s) + '"]'); if (q) q.classList.add('cur'); });
+      bPrev.disabled = k === 0; bNext.disabled = k === it.rows.length - 1;
+    }
+    bPrev.onclick = () => { k--; render(); };
+    bNext.onclick = () => { k++; render(); };
+    render();
+  }
+
+  /* the Molecule class as it grows in the notebook */
+  const MOL_HEAD = "class Molecule:\n    def __init__(self, atoms, charge=0):\n        self.atoms = atoms\n        self.charge = charge\n\n    def get_electrons(self):\n        electrons = sum(atom.number for atom in self.atoms)\n        return electrons - self.charge\n";
+  const MOL_STR = "\n    def __str__(self):\n        return (f'Molecule with {len(self.atoms)} atoms, '\n                f'{self.get_electrons()} electrons')";
+  const ADD_PLAIN = "\n    def add_atom(self, atom):\n        self.atoms.append(atom)\n";
+  const ADD_CHECK = "\n    def add_atom(self, atom):\n        if type(atom) != Atom:\n            raise ValueError('Please provide an Atom object')\n        self.atoms.append(atom)\n";
+  const ADD_NEW = "\n    def add_atom(self, atom):\n        if type(atom) != Atom:\n            raise ValueError('Please provide an Atom object')\n        return Molecule(self.atoms + [atom], self.charge)\n";
+  const ADD_OP = "\n    def __add__(self, atom):\n        return self.add_atom(atom)\n";
+  const FROM_SYM = "\n    @staticmethod\n    def from_symbols(symbols, charge=0):\n        atoms = [Atom(symbol) for symbol in symbols]\n        return Molecule(atoms, charge)\n";
+
+  /* ---------- § tuples ---------- */
+  (function () {
+    const mol = $('#tp-mol');
+    mol.append(el('span', 'bracket', '['));
+    [['1', '1.008'], ['1', '1.008'], ['8', '15.999']].forEach(([n, m], i) => {
+      const col = el('div', 'cellcol');
+      const t = el('div', 'cells');
+      const cm = el('div', 'cell g3 grp', m); cm.dataset.g = 't-mass';
+      const c0 = el('div', 'cellcol'), c1 = el('div', 'cellcol');
+      c0.append(el('div', 'idx', '0'), el('div', 'cell', n)); c1.append(el('div', 'idx', '1'), cm);
+      t.append(el('span', 'bracket', '('), c0, c1, el('span', 'bracket', ')'));
+      col.append(el('div', 'idx', ['H1', 'H2', 'O'][i]), t);
+      mol.append(col);
+    });
+    mol.append(el('span', 'bracket', ']'));
+    const d = $('#tp-dict');
+    [["'symbol'", "'H'"], ["'number'", '1'], ["'mass'", '1.008']].forEach(([k, v]) => d.append(el('span', 'k', k), el('span', 'ar', '→'), el('span', 'v', v)));
+    // hover groups are wired before init runs: wire the cells made here
+    const sec = $('#tuples');
+    mol.querySelectorAll('[data-g]').forEach(e => {
+      e.addEventListener('mouseenter', () => sec.querySelectorAll('[data-g]').forEach(x => { x.classList.toggle('hot', x.dataset.g === e.dataset.g); x.classList.toggle('cold', x.dataset.g !== e.dataset.g); }));
+      e.addEventListener('mouseleave', () => sec.querySelectorAll('[data-g]').forEach(x => x.classList.remove('hot', 'cold')));
+    });
+  })();
+
+  /* ---------- § class Atom: tracer ---------- */
+  (function () {
+    const code = "class Atom:\n    def __init__(self, symbol):\n        number, mass = ATOMIC_DATA[symbol]\n        self.symbol = symbol\n        self.number = number\n        self.mass = mass\n\n    def describe(self):\n        print(f'{self.symbol}: number {self.number}, '\n              f'mass {self.mass}')\n\nH1 = Atom('H')\nH1.describe()";
+    const K = '<class Atom>', o0 = '<Atom>', o1 = "<Atom symbol='H'>", o2 = "<Atom symbol='H' number=1>", o3 = "<Atom symbol='H' number=1 mass=1.008>";
+    const g = v => ({ n: 'global', v }), ini = (self, extra) => ({ n: '__init__', v: Object.assign({ self, symbol: "'H'" }, extra || {}) });
+    const nm = { number: '1', mass: '1.008' };
+    $('#tr-atom').classList.add('fit');
+    C.tracer($('#tr-atom'), { code, speed: 1100, steps: [
+      { l: 1, v: { Atom: K }, note: 'class stores the methods; none of them runs yet.' },
+      { l: 12, v: { Atom: K }, note: "Atom('H') makes an empty object and calls __init__ on it." },
+      { l: 2, f: [g({ Atom: K }), ini(o0)], note: 'self is the new object.' },
+      { l: 3, f: [g({ Atom: K }), ini(o0, nm)], note: 'number and mass are ordinary local variables…' },
+      { l: 4, f: [g({ Atom: K }), ini(o1, nm)], note: '…self.symbol is stored on the object: an attribute.' },
+      { l: 5, f: [g({ Atom: K }), ini(o2, nm)] },
+      { l: 6, f: [g({ Atom: K }), ini(o3, nm)] },
+      { l: 12, v: { Atom: K, H1: o3 }, note: 'The locals are gone; the attributes stay with the object, now called H1.' },
+      { l: [13, 8], f: [g({ Atom: K, H1: o3 }), { n: 'describe', v: { self: o3 } }], note: 'H1.describe() passes H1 as self: no arguments needed.' },
+      { l: [9, 10], f: [g({ Atom: K, H1: o3 }), { n: 'describe', v: { self: o3 } }], o: 'H: number 1, mass 1.008\n' },
+    ] });
+  })();
+
+  /* ---------- § __str__ ---------- */
+  (function () {
+    const ADDR = '0x78099fac1850', DESC = 'H: number 1, mass 1.008';
+    const BASE = "class Atom:\n    def __init__(self, symbol):\n        number, mass = ATOMIC_DATA[symbol]\n        self.symbol = symbol\n        self.number = number\n        self.mass = mass\n";
+    function upd() {
+      const on = $('#st-on').checked;
+      const code = BASE + (on ? "\n    def describe(self):\n        print(self)\n\n    def __str__(self):\n        return (f'{self.symbol}: number {self.number}, '\n                f'mass {self.mass}')\n"
+        : "\n    def describe(self):\n        print(f'{self.symbol}: number {self.number}, '\n              f'mass {self.mass}')\n") + "\nH1 = Atom('H')";
+      codeNew($('#st-code'), code, on ? ['print(self)', 'def __str__', "return (f'{self.symbol}", "f'mass {self.mass}')"] : []);
+      const rows = [['str(H1)', on ? "'" + DESC + "'" : "'<__main__.Atom object at " + ADDR + ">'"], ['print(H1)', on ? DESC : '<__main__.Atom object at ' + ADDR + '>'], ['H1', '<__main__.Atom at ' + ADDR + '>']];
+      $('#st-out').innerHTML = rows.map(([c, o]) => '<span class="result">' + C.hl(c) + '</span><div class="out">' + esc(o) + '</div>').join('');
+    }
+    $('#st-on').addEventListener('change', upd);
+    upd();
+  })();
+
+  /* ---------- § checking the input ---------- */
+  (function () {
+    const V = {
+      plain: { code: MOL_HEAD + ADD_PLAIN + MOL_STR, marks: [] },
+      check: { code: MOL_HEAD + ADD_CHECK + MOL_STR, marks: ['if type(atom)', 'raise ValueError'] } };
+    const ERR_LATE = "!AttributeError:\n  'str' object has no attribute 'number'\n\nraised in get_electrons,\ncalled from __str__,\ncalled from print";
+    function render(st, view, info) {
+      view.innerHTML = '';
+      const w = el('div'); w.append(el('div', 'result muted', 'h2o.atoms ='));
+      const cells = el('div', 'cells');
+      (st.atoms || []).forEach((a, i) => { const c = el('div', 'cell' + (typeof a === 'string' ? ' bad' : ''), typeof a === 'string' ? esc("'" + a + "'") : 'Atom ' + a.s); if (info.new && i === st.atoms.length - 1) c.classList.add('new'); cells.append(c); });
+      if (!st.atoms) cells.append(el('span', 'muted', 'no molecule yet'));
+      w.append(cells); view.append(w);
+    }
+    function draw(v) {
+      codeNew($('#ck-code'), V[v].code, V[v].marks);
+      const h = $('#ck-ops'); h.innerHTML = '';
+      C.ops(h, { init: () => ({}), render, ops: [
+        { code: 'h2o = Molecule([H1, H2, O])', apply: st => { st.atoms = [{ s: 'H' }, { s: 'H' }, { s: 'O' }]; } },
+        { code: "h2o.add_atom('F')", apply: (st, info) => { if (v === 'check') return '!ValueError: Please provide an Atom object'; st.atoms.push('F'); info.new = true; return 'no error'; } },
+        { code: 'print(h2o)', apply: st => st.atoms.some(a => typeof a === 'string') ? ERR_LATE : 'Molecule with 3 atoms, 10 electrons' },
+      ] });
+    }
+    seg($('#ck-seg'), [['plain', 'no check'], ['check', 'type check']], 'plain', draw);
+    draw('plain');
+  })();
+
+  /* ---------- § in place or new object ---------- */
+  (function () {
+    const M1 = { type: 'Molecule', text: 'atoms [H, H, O], charge 0' }, M1c = { type: 'Molecule', text: 'atoms [H, H, O, C], charge 0' }, M2 = { type: 'Molecule', text: 'atoms [H, H, O, C], charge 0' };
+    const V = {
+      inplace: { code: MOL_HEAD + ADD_CHECK + MOL_STR, marks: ['self.atoms.append(atom)'], steps: [
+        { code: 'h2o = Molecule([H1, H2, O])', names: { h2o: 'M1' }, objs: { M1 }, hot: ['h2o'] },
+        { code: "h2o.add_atom(Atom('C'))", names: { h2o: 'M1' }, objs: { M1: M1c }, changed: ['M1'], hot: ['h2o'] },
+        { code: 'print(h2o)', names: { h2o: 'M1' }, objs: { M1: M1c }, hot: ['h2o'], out: 'Molecule with 4 atoms, 16 electrons' }] },
+      copy: { code: MOL_HEAD + ADD_NEW + MOL_STR, marks: ['return Molecule(self.atoms'], steps: [
+        { code: 'h2o = Molecule([H1, H2, O])', names: { h2o: 'M1' }, objs: { M1 }, hot: ['h2o'] },
+        { code: "ch2o = h2o.add_atom(Atom('C'))", names: { h2o: 'M1', ch2o: 'M2' }, objs: { M1, M2 }, changed: ['M2'], hot: ['ch2o'] },
+        { code: 'print(h2o)', names: { h2o: 'M1', ch2o: 'M2' }, objs: { M1, M2 }, hot: ['h2o'], out: 'Molecule with 3 atoms, 10 electrons' },
+        { code: 'print(ch2o)', names: { h2o: 'M1', ch2o: 'M2' }, objs: { M1, M2 }, hot: ['ch2o'], out: 'Molecule with 4 atoms, 16 electrons' }] } };
+    function draw(v) {
+      codeNew($('#no-code'), V[v].code, V[v].marks);
+      const h = $('#no-od'); h.innerHTML = '';
+      C.objdiag(h, { steps: V[v].steps });
+    }
+    seg($('#no-seg'), [['inplace', 'in place: append'], ['copy', 'new object: return Molecule(...)']], 'inplace', draw);
+    draw('inplace');
+  })();
+
+  /* ---------- § __add__ ---------- */
+  chain($('#ch-add'), {
+    code: MOL_HEAD + ADD_NEW + ADD_OP + MOL_STR + "\n\nh2o = Molecule([H1, H2, O])\nprint(h2o + Atom('C'))", marks: ['def __add__', 'return self.add_atom(atom)'],
+    items: [
+      { expr: "h2o + Atom('C')", rows: [
+        { t: "h2o + Atom('C')", l: ["print(h2o + Atom('C'))"] },
+        { t: "h2o.__add__(Atom('C'))", l: ['def __add__'], note: 'self = h2o, the left operand; atom = the right one' },
+        { t: 'self.add_atom(atom)', l: ['return self.add_atom(atom)'] },
+        { t: 'Molecule(self.atoms + [atom],\n         self.charge)', l: ['return Molecule(self.atoms'], note: 'a new molecule; h2o is unchanged' },
+        { t: 'Molecule with 4 atoms, 16 electrons', l: ["print(h2o + Atom('C'))"] }] },
+      { expr: "h2o + 'F'", rows: [
+        { t: "h2o + 'F'", l: [] },
+        { t: "h2o.__add__('F')", l: ['def __add__'] },
+        { t: "self.add_atom('F')", l: ['return self.add_atom(atom)'] },
+        { t: "ValueError:\n  Please provide an Atom object", l: ['raise ValueError'], note: 'the type check still protects +' }] },
+    ] });
+
+  /* ---------- § staticmethod ---------- */
+  chain($('#ch-sym'), {
+    code: MOL_HEAD + ADD_NEW + ADD_OP + FROM_SYM + MOL_STR + "\n\nprint(Molecule.from_symbols(['H', 'H', 'O']))\nprint(Molecule.from_symbols(['O', 'H'], charge=-1))", marks: ['@staticmethod', 'def from_symbols', 'atoms = [Atom(symbol)', 'return Molecule(atoms, charge)'],
+    items: [
+      { expr: "Molecule.from_symbols(\n    ['H', 'H', 'O'])", rows: [
+        { t: "Molecule.from_symbols(\n    ['H', 'H', 'O'])", l: ["from_symbols(['H', 'H', 'O'])"], note: 'called on the class: there is no object yet' },
+        { t: "from_symbols(symbols=['H', 'H', 'O'],\n             charge=0)", l: ['def from_symbols'], note: 'no self' },
+        { t: "Molecule([Atom('H'), Atom('H'),\n          Atom('O')], 0)", l: ['atoms = [Atom(symbol)', 'return Molecule(atoms, charge)'] },
+        { t: 'Molecule with 3 atoms, 10 electrons', l: ["from_symbols(['H', 'H', 'O'])"] }] },
+      { expr: "Molecule.from_symbols(['O', 'H'],\n                      charge=-1)", rows: [
+        { t: "Molecule.from_symbols(['O', 'H'],\n                      charge=-1)", l: ["charge=-1))"] },
+        { t: "from_symbols(symbols=['O', 'H'],\n             charge=-1)", l: ['def from_symbols'] },
+        { t: "Molecule([Atom('O'), Atom('H')], -1)", l: ['atoms = [Atom(symbol)', 'return Molecule(atoms, charge)'] },
+        { t: 'Molecule with 2 atoms, 10 electrons', l: ["charge=-1))"] }] },
+    ] });
+
+  /* ---------- § course project ---------- */
+  (function () {
+    const D = {"frames":[[[-0.782,-0.417,0.055],[-0.635,-1.145,0.864],[-1.758,0.058,0.217],[-0.845,-0.981,-0.886],[0.319,0.627,0.021],[0.154,1.358,-0.793],[0.366,1.193,0.969],[1.617,0.124,-0.183],[1.563,-0.819,-0.265]],[[-0.78,-0.418,0.054],[-0.611,-1.166,0.84],[-1.752,0.052,0.252],[-0.865,-0.957,-0.899],[0.319,0.629,0.021],[0.129,1.373,-0.777],[0.393,1.179,0.976],[1.615,0.123,-0.182],[1.538,-0.742,-0.566]],[[-0.774,-0.419,0.054],[-0.586,-1.183,0.82],[-1.745,0.04,0.278],[-0.873,-0.939,-0.909],[0.319,0.635,0.021],[0.109,1.392,-0.759],[0.411,1.166,0.985],[1.609,0.119,-0.182],[1.545,-0.574,-0.827]],[[-0.767,-0.421,0.053],[-0.565,-1.191,0.809],[-1.74,0.027,0.289],[-0.867,-0.933,-0.914],[0.319,0.642,0.022],[0.095,1.412,-0.742],[0.417,1.154,0.995],[1.602,0.114,-0.182],[1.594,-0.337,-1.017]],[[-0.761,-0.423,0.052],[-0.549,-1.194,0.804],[-1.736,0.016,0.293],[-0.857,-0.932,-0.917],[0.317,0.648,0.023],[0.086,1.426,-0.73],[0.411,1.148,1.003],[1.597,0.109,-0.182],[1.684,-0.06,-1.111]],[[-0.753,-0.425,0.051],[-0.535,-1.194,0.803],[-1.733,0.007,0.291],[-0.844,-0.935,-0.917],[0.315,0.655,0.024],[0.083,1.43,-0.731],[0.394,1.157,1.005],[1.592,0.104,-0.181],[1.8,0.222,-1.098]],[[-0.745,-0.427,0.049],[-0.526,-1.189,0.808],[-1.73,-0.002,0.28],[-0.823,-0.944,-0.916],[0.313,0.663,0.025],[0.083,1.424,-0.743],[0.369,1.181,1.0],[1.586,0.098,-0.181],[1.922,0.476,-0.981]],[[-0.736,-0.428,0.048],[-0.52,-1.181,0.818],[-1.728,-0.01,0.262],[-0.797,-0.956,-0.913],[0.311,0.671,0.026],[0.083,1.418,-0.758],[0.344,1.207,0.993],[1.579,0.092,-0.181],[2.042,0.668,-0.773]],[[-0.73,-0.43,0.047],[-0.521,-1.171,0.829],[-1.727,-0.015,0.241],[-0.772,-0.969,-0.908],[0.31,0.677,0.026],[0.084,1.412,-0.77],[0.323,1.228,0.987],[1.574,0.088,-0.181],[2.142,0.775,-0.499]],[[-0.727,-0.43,0.047],[-0.53,-1.159,0.844],[-1.729,-0.015,0.216],[-0.752,-0.984,-0.901],[0.309,0.679,0.026],[0.093,1.406,-0.781],[0.305,1.24,0.981],[1.571,0.086,-0.181],[2.203,0.792,-0.19]],[[-0.73,-0.43,0.047],[-0.549,-1.145,0.86],[-1.733,-0.01,0.189],[-0.738,-1.0,-0.891],[0.31,0.677,0.026],[0.109,1.395,-0.793],[0.294,1.249,0.974],[1.574,0.088,-0.181],[2.216,0.718,0.115]],[[-0.736,-0.428,0.048],[-0.575,-1.131,0.876],[-1.74,-0.001,0.164],[-0.731,-1.015,-0.88],[0.311,0.671,0.026],[0.128,1.376,-0.808],[0.289,1.256,0.964],[1.579,0.092,-0.181],[2.181,0.559,0.381]],[[-0.745,-0.427,0.049],[-0.603,-1.116,0.891],[-1.747,0.011,0.143],[-0.73,-1.029,-0.868],[0.313,0.663,0.025],[0.15,1.352,-0.825],[0.286,1.265,0.951],[1.586,0.098,-0.181],[2.11,0.33,0.572]],[[-0.754,-0.425,0.051],[-0.626,-1.106,0.902],[-1.752,0.022,0.13],[-0.735,-1.038,-0.86],[0.315,0.655,0.024],[0.172,1.33,-0.84],[0.283,1.273,0.94],[1.592,0.104,-0.181],[2.012,0.057,0.666]],[[-0.761,-0.423,0.052],[-0.638,-1.102,0.905],[-1.756,0.032,0.13],[-0.748,-1.039,-0.857],[0.317,0.648,0.023],[0.19,1.321,-0.844],[0.286,1.27,0.938],[1.597,0.109,-0.182],[1.897,-0.226,0.653]],[[-0.767,-0.421,0.053],[-0.647,-1.104,0.904],[-1.758,0.041,0.138],[-0.766,-1.034,-0.858],[0.319,0.642,0.022],[0.197,1.326,-0.836],[0.298,1.254,0.945],[1.602,0.114,-0.182],[1.78,-0.483,0.535]],[[-0.774,-0.419,0.054],[-0.657,-1.107,0.902],[-1.761,0.051,0.147],[-0.786,-1.028,-0.86],[0.319,0.635,0.021],[0.193,1.336,-0.823],[0.315,1.231,0.955],[1.609,0.119,-0.182],[1.682,-0.682,0.322]],[[-0.78,-0.418,0.054],[-0.657,-1.117,0.893],[-1.762,0.059,0.168],[-0.809,-1.014,-0.867],[0.319,0.63,0.021],[0.178,1.347,-0.807],[0.338,1.21,0.963],[1.615,0.123,-0.182],[1.611,-0.799,0.043]],[[-0.782,-0.417,0.055],[-0.64,-1.138,0.871],[-1.759,0.059,0.205],[-0.838,-0.988,-0.882],[0.319,0.627,0.021],[0.154,1.359,-0.792],[0.366,1.193,0.969],[1.617,0.124,-0.183],[1.563,-0.819,-0.265]]],"E":[-22.92079034,-22.92121989,-22.92205453,-22.92236788,-22.92168772,-22.92044299,-22.91942772,-22.91908747,-22.91925402,-22.91940674,-22.91925332,-22.91908687,-22.91942748,-22.92044298,-22.9216878,-22.92236793,-22.92205482,-22.92122057,-22.92078952]};
+    const EL = ['C', 'H', 'H', 'H', 'C', 'H', 'H', 'O', 'H'];
+    const BONDS = [[0, 1], [0, 2], [0, 3], [0, 4], [4, 5], [4, 6], [4, 7], [7, 8]];
+    const COL = { C: '#909090', H: '#ffffff', O: '#ff0d0d' }, RAD = { C: .27, H: .18, O: .27 };
+    const sub = (a, b) => a.map((v, k) => v - b[k]), dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], norm = a => Math.hypot(...a);
+    const dist = (X, i, j) => norm(sub(X[i], X[j]));
+    const angle = (X, i, j, k) => { const u = sub(X[i], X[j]), v = sub(X[k], X[j]); return Math.acos(dot(u, v) / norm(u) / norm(v)) * 180 / Math.PI; };
+    const dihedral = (X, i, j, k, l) => {   // 0..360, as ase.Atoms.get_dihedral
+      const b0 = sub(X[i], X[j]), b1u = sub(X[k], X[j]), b2 = sub(X[l], X[k]), n1 = norm(b1u), b1 = b1u.map(v => v / n1);
+      const v = sub(b0, b1.map(x => x * dot(b0, b1))), w = sub(b2, b1.map(x => x * dot(b2, b1)));
+      const a = Math.atan2(dot(cross(b1, v), w), dot(v, w)) * 180 / Math.PI;
+      return (a + 360) % 360;
+    };
+    const Emin = Math.min(...D.E), KCAL = D.E.map(e => (e - Emin) * 627.509);
+    const frames = D.frames.map((_, i) => i);
+    const PLOTS = {
+      energy: { atoms: [], kind: null, x: frames.map(i => 20 * i), y: KCAL, xl: 'Angle (degrees)', yl: 'Energy (kcal/mol)', scatter: true, fmt: (i, y) => 'step ' + i + ', angle ' + 20 * i + '°: ' + y.toFixed(2) + ' kcal/mol' },
+      d: { atoms: [0, 8], kind: 'd', title: 'Distance(0, 8)', yl: 'A', f: X => dist(X, 0, 8), fmt: (i, y) => 'frame ' + i + ': ' + y.toFixed(3) + ' Å' },
+      a: { atoms: [0, 1, 7], kind: 'a', title: 'Angle(0, 1, 7)', yl: 'Degrees', f: X => angle(X, 0, 1, 7), fmt: (i, y) => 'frame ' + i + ': ' + y.toFixed(2) + '°' },
+      t: { atoms: [1, 0, 4, 7], kind: 't', title: 'Dihedral(1, 0, 4, 7)', yl: 'Degrees', f: X => dihedral(X, 1, 0, 4, 7), fmt: (i, y) => 'frame ' + i + ': ' + y.toFixed(1) + '°' },
+    };
+    ['d', 'a', 't'].forEach(k => { PLOTS[k].x = frames; PLOTS[k].y = D.frames.map(PLOTS[k].f); PLOTS[k].xl = 'frame'; });
+
+    /* small matplotlib-like line plot */
+    function nice(a, b, n) {
+      const raw = (b - a) / n, p = 10 ** Math.floor(Math.log10(raw)), st = [1, 2, 2.5, 5, 10].map(s => s * p).find(s => s >= raw * (1 - 1e-9));
+      const t = []; for (let k = Math.ceil(a / st - 1e-9); k * st <= b + st * 1e-9; k++) t.push(k * st);
+      return { t, dec: (String(+st.toPrecision(3)).split('.')[1] || '').length };
+    }
+    function plot(P, cur) {
+      const W = 460, H = 290, L = 56, R = 14, T = P.title ? 26 : 12, B = 40, pw = W - L - R, ph = H - T - B;
+      const xs = P.x, ys = P.y, x0 = Math.min(...xs), x1 = Math.max(...xs), yl = Math.min(...ys), yh = Math.max(...ys);
+      const mx = (x1 - x0) * .05, my = (yh - yl) * .05;
+      const X = v => L + (v - x0 + mx) / (x1 - x0 + 2 * mx) * pw, Y = v => T + ph - (v - yl + my) / (yh - yl + 2 * my) * ph;
+      const svg = S('svg', { viewBox: `0 0 ${W} ${H}`, class: 'mpl' });
+      svg.append(S('polyline', { points: xs.map((x, i) => X(x).toFixed(1) + ',' + Y(ys[i]).toFixed(1)).join(' '), fill: 'none', stroke: '#1f77b4', 'stroke-width': P.scatter ? 0 : 1.6 }));
+      if (P.scatter) xs.forEach((x, i) => svg.append(S('circle', { cx: X(x), cy: Y(ys[i]), r: 3.3, fill: '#1f77b4' })));
+      svg.append(S('circle', { cx: X(xs[cur]), cy: Y(ys[cur]), r: 6, fill: 'none', stroke: '#e8590c', 'stroke-width': 2.5 }));
+      svg.append(S('rect', { x: L, y: T, width: pw, height: ph, class: 'ax' }));
+      const xt = P.scatter ? { t: [0, 50, 100, 150, 200, 250, 300, 350], dec: 0 } : { t: frames, dec: 0 }, yt = nice(yl - my, yh + my, 6);
+      xt.t.forEach(v => { const x = X(v); svg.append(S('line', { x1: x, x2: x, y1: T + ph, y2: T + ph + 3.5, class: 'tk' })); svg.append(S('text', { x, y: T + ph + 14, 'text-anchor': 'middle' }, v.toFixed(xt.dec))); });
+      yt.t.forEach(v => { if (v < yl - my || v > yh + my) return; const y = Y(v); svg.append(S('line', { x1: L - 3.5, x2: L, y1: y, y2: y, class: 'tk' })); svg.append(S('text', { x: L - 6, y: y + 3.8, 'text-anchor': 'end' }, v.toFixed(yt.dec).replace('-', '−'))); });
+      svg.append(S('text', { x: L + pw / 2, y: H - 8, 'text-anchor': 'middle' }, P.xl));
+      svg.append(S('text', { x: 14, y: T + ph / 2, 'text-anchor': 'middle', transform: `rotate(-90 14 ${T + ph / 2})` }, P.yl));
+      if (P.title) svg.append(S('text', { x: L + pw / 2, y: T - 8, 'text-anchor': 'middle', class: 'ttl' }, P.title));
+      return svg;
+    }
+
+    /* 3-D view */
+    const rot = (ax, t) => { const c = Math.cos(t), s = Math.sin(t); return ax === 'x' ? [[1, 0, 0], [0, c, -s], [0, s, c]] : [[c, 0, s], [0, 1, 0], [-s, 0, c]]; };
+    const mul = (A, Bm) => A.map(r => [0, 1, 2].map(j => r[0] * Bm[0][j] + r[1] * Bm[1][j] + r[2] * Bm[2][j]));
+    let mode = 'energy', fr = 0;
+    let Rm = mul(rot('x', -0.5), rot('y', 0.3));
+    const svg = S('svg', { viewBox: '-2.4 -2.4 4.8 4.8' }); $('#pj-view').append(svg);
+    function render3d() {
+      svg.innerHTML = '';
+      const P = PLOTS[mode], A = P.atoms;
+      const Q = D.frames[fr].map(p => Rm.map(r => r[0] * p[0] + r[1] * p[1] + r[2] * p[2]));
+      const sy = q => -q[1];
+      BONDS.forEach(([i, j]) => svg.append(S('line', { x1: Q[i][0], y1: sy(Q[i]), x2: Q[j][0], y2: sy(Q[j]), stroke: '#888', 'stroke-width': .09 })));
+      const line = (i, j, w, dash) => svg.append(S('line', { x1: Q[i][0], y1: sy(Q[i]), x2: Q[j][0], y2: sy(Q[j]), stroke: '#e8590c', 'stroke-width': w, 'stroke-dasharray': dash || '' }));
+      if (P.kind === 'd') line(A[0], A[1], .07, '.18 .1');
+      if (P.kind === 'a') { line(A[1], A[0], .08); line(A[1], A[2], .08); }
+      if (P.kind === 't') svg.append(S('polyline', { points: A.map(i => Q[i][0] + ',' + sy(Q[i])).join(' '), fill: 'none', stroke: '#e8590c', 'stroke-width': .08 }));
+      [...Q.keys()].sort((a, b) => Q[a][2] - Q[b][2]).forEach(i => {
+        const e = EL[i], on = A.includes(i);
+        const c = S('circle', { cx: Q[i][0], cy: sy(Q[i]), r: RAD[e], fill: COL[e], stroke: on ? '#e8590c' : '#555', 'stroke-width': on ? .08 : .02 });
+        c.append(S('title', {}, i + ' ' + e)); svg.append(c);
+        svg.append(S('text', { x: Q[i][0], y: sy(Q[i]) + .08, 'text-anchor': 'middle', style: 'font-size:' + (e === 'H' ? .2 : .24) + 'px;fill:#000;font-weight:' + (on ? 700 : 400) + ';pointer-events:none' }, String(i)));
+      });
+    }
+    let drag = null;
+    svg.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY]; svg.setPointerCapture(e.pointerId); svg.style.cursor = 'grabbing'; });
+    svg.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const k = 4.8 / svg.getBoundingClientRect().width * 1.2;
+      Rm = mul(rot('y', (e.clientX - drag[0]) * k), mul(rot('x', (e.clientY - drag[1]) * k), Rm)); drag = [e.clientX, e.clientY]; render3d();
+    });
+    svg.addEventListener('pointerup', () => { drag = null; svg.style.cursor = ''; });
+
+    function update() {
+      const P = PLOTS[mode];
+      $('#pj-fo').textContent = fr + ' (' + 20 * fr + '°)';
+        const f = $('#pj-fig'); f.innerHTML = ''; f.append(plot(P, fr));
+      $('#pj-val').textContent = P.fmt(fr, P.y[fr]);
+      render3d();
+    }
+    seg($('#pj-seg'), [['energy', 'energy'], ['d', 'distance 0–8'], ['a', 'angle 0–1–7'], ['t', 'dihedral 1–0–4–7']], mode, v => { mode = v; update(); });
+    $('#pj-f').addEventListener('input', e => { fr = +e.target.value; update(); });
+    let timer = null;
+    $('#pj-play').onclick = () => {
+      if (timer) { clearInterval(timer); timer = null; $('#pj-play').textContent = '▶▶ play'; return; }
+      $('#pj-play').textContent = '❚❚ pause';
+      timer = setInterval(() => { fr = (fr + 1) % 19; $('#pj-f').value = fr; update(); }, 350);
+    };
+    update();
+    C.codeBlock($('#pj-tpl'), "import ase\n\nclass AtomsPlotter:\n\t# Put your code here\n\n\n# parse the ORCA output and store the list of chemical elements and\n# atomic coordinates in \"elements\" and \"coords\" variables\n\n# Create a list of ase.Atoms\natoms_list = [ase.Atoms(elements, coords) for coords in coords_list]\n\nplotter = AtomsPlotter(atoms_list)\nplotter.plot_distance('distance.png', 0, 8)\nplotter.plot_angle('angle.png', 0, 1, 7)\nplotter.plot_dihedral('dihedral.png', 1, 0, 4, 7)", false);
+  })();
+};
+</script>
+</body>
+</html>

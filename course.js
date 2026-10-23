@@ -430,6 +430,16 @@
       $('#fs-plus').onclick = () => { px = Math.min(32, px + 1); applyFs(); };
       applyFs();
     }
+    const tip = document.body.appendChild(C.el('div')); tip.id = 'tipbox';
+    document.addEventListener('mouseover', e => {
+      const t = e.target.closest && e.target.closest('[data-tip]');
+      if (!t) { tip.style.display = 'none'; return; }
+      tip.textContent = t.dataset.tip; tip.style.display = 'block';
+      const r = t.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+      tip.style.left = Math.max(4, Math.min(r.left, innerWidth - w - 4)) + 'px';
+      tip.style.top = (r.bottom + h + 8 > innerHeight ? r.top - h - 5 : r.bottom + 5) + 'px';
+    });
+    addEventListener('scroll', () => { tip.style.display = 'none'; }, true);
     if (C.init) C.init();
   });
 })();
